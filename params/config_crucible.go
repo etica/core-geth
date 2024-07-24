@@ -103,5 +103,7 @@ var (
 
 		EticaSmartContractv2: big.NewInt(703_000), // Etica smart contract (Meticulous, Etica Hardfork 1)
 
+		EticaRandomX: big.NewInt(0), // Warning, dont forget set to RandomX hardfork height
+
 	}
 )

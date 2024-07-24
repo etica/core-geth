@@ -17,6 +17,7 @@ package params
 
 import (
 	"math/big"
+
 	"github.com/ethereum/go-ethereum/params/types/coregeth"
 	"github.com/ethereum/go-ethereum/params/types/ctypes"
 )
@@ -24,17 +25,17 @@ import (
 var (
 	// EticaChainConfig is the chain parameters to run a node on the Etica main network.
 	EticaChainConfig = &coregeth.CoreGethChainConfig{
-		NetworkID:                 61803,
-		ChainID:                   big.NewInt(61803),
-		Ethash:                        new(ctypes.EthashConfig),
-		
-        //HomesteadBlock: big.NewInt(0),
-        //Homestead
+		NetworkID: 61803,
+		ChainID:   big.NewInt(61803),
+		Ethash:    new(ctypes.EthashConfig),
+
+		//HomesteadBlock: big.NewInt(0),
+		//Homestead
 		EIP2FBlock: big.NewInt(0),
 		EIP7FBlock: big.NewInt(0),
 
 		EIP150Block: big.NewInt(0),
-		EIP155Block:  big.NewInt(0),
+		EIP155Block: big.NewInt(0),
 
 		//EIP158FBlock: big.NewInt(0),
 		// EIP158~
@@ -51,23 +52,22 @@ var (
 		EIP212FBlock: big.NewInt(0),
 		EIP213FBlock: big.NewInt(0),
 		EIP214FBlock: big.NewInt(0),
-		EIP649FBlock:  big.NewInt(0), // added
+		EIP649FBlock: big.NewInt(0), // added
 		EIP658FBlock: big.NewInt(0),
-		
 
 		//ConstantinopleBlock: big.NewInt(0),
 		// Constantinople eq, aka Agharta
 		EIP145FBlock:  big.NewInt(0),
 		EIP1014FBlock: big.NewInt(0),
 		EIP1052FBlock: big.NewInt(0),
-		EIP1234FBlock:  big.NewInt(0), // added
+		EIP1234FBlock: big.NewInt(0), // added
 		//EIP1283FBlock: big.NewInt(0), // added
 
 		//PetersburgBlock: big.NewInt(0),
 
-		ETIP1017FBlock:     big.NewInt(0), // EGAZ tail emission, fixed 2 EGAZ per block reward
+		ETIP1017FBlock: big.NewInt(0), // EGAZ tail emission, fixed 2 EGAZ per block reward
 
-		DisposalBlock:      big.NewInt(4481020), // Stop difficulty bomb
+		DisposalBlock: big.NewInt(4481020), // Stop difficulty bomb
 
 		// Istanbul eq, aka Phoenix
 		// ECIP-1088
@@ -78,7 +78,7 @@ var (
 		EIP2028FBlock: big.NewInt(4481010),
 		EIP2200FBlock: big.NewInt(4481010), // RePetersburg (=~ re-1283)
 
-		// ECIP1099 For the smoothest possible transition activation should occur on 
+		// ECIP1099 For the smoothest possible transition activation should occur on
 		//  a block in which an epoch transition to an even epoch number is occurring.
 		//	Epoch 388/2 = 194 (good) = block 11_640_000
 		//	Epoch 389/2 = 194.5 (bad) -
@@ -95,7 +95,7 @@ var (
 		EIP3529FBlock: big.NewInt(4481100),
 		EIP3541FBlock: big.NewInt(4481100),
 
-        // Spiral, aka Shanghai (partially)
+		// Spiral, aka Shanghai (partially)
 		EIP3651FBlock: big.NewInt(4481150), // Warm COINBASE (gas reprice)
 		EIP3855FBlock: big.NewInt(4481150), // PUSH0 instruction
 		EIP3860FBlock: big.NewInt(4481150), // Limit and meter initcode
@@ -103,7 +103,7 @@ var (
 
 		EticaSmartContractv2: big.NewInt(4481000), // Etica smart contract (Meticulous, Etica Hardfork 1)
 
+		EticaRandomX: big.NewInt(0), // Warning, dont forget set to RandomX hardfork height
 
 	}
-
 )
