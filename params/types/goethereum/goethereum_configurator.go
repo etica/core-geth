@@ -659,6 +659,16 @@ func (c *ChainConfig) SetEIP4844TransitionTime(n *uint64) error {
 	return nil
 }
 
+// GetEIP7516TransitionTime EIP7516: Shard Block Transactions
+func (c *ChainConfig) GetEIP7516TransitionTime() *uint64 {
+	return c.CancunTime
+}
+
+func (c *ChainConfig) SetEIP7516TransitionTime(n *uint64) error {
+	c.CancunTime = n
+	return nil
+}
+
 // GetEIP1153TransitionTime EIP1153: Transient Storage opcodes
 func (c *ChainConfig) GetEIP1153TransitionTime() *uint64 {
 	return c.CancunTime
@@ -689,6 +699,65 @@ func (c *ChainConfig) SetEIP6780TransitionTime(n *uint64) error {
 	return nil
 }
 
+// GetEIP6780TransitionTime EIP4788: Beacon block root in the EVM
+func (c *ChainConfig) GetEIP4788TransitionTime() *uint64 {
+	return c.CancunTime
+}
+
+func (c *ChainConfig) SetEIP4788TransitionTime(n *uint64) error {
+	c.CancunTime = n
+	return nil
+}
+
+// Cancun by block number
+func (c *ChainConfig) GetEIP4844Transition() *uint64 {
+	return nil
+}
+
+func (c *ChainConfig) SetEIP4844Transition(n *uint64) error {
+	return ctypes.ErrUnsupportedConfigNoop
+}
+
+func (c *ChainConfig) GetEIP7516Transition() *uint64 {
+	return nil
+}
+
+func (c *ChainConfig) SetEIP7516Transition(n *uint64) error {
+	return ctypes.ErrUnsupportedConfigNoop
+}
+
+func (c *ChainConfig) GetEIP1153Transition() *uint64 {
+	return nil
+}
+
+func (c *ChainConfig) SetEIP1153Transition(n *uint64) error {
+	return ctypes.ErrUnsupportedConfigNoop
+}
+
+func (c *ChainConfig) GetEIP5656Transition() *uint64 {
+	return nil
+}
+
+func (c *ChainConfig) SetEIP5656Transition(n *uint64) error {
+	return ctypes.ErrUnsupportedConfigNoop
+}
+
+func (c *ChainConfig) GetEIP6780Transition() *uint64 {
+	return nil
+}
+
+func (c *ChainConfig) SetEIP6780Transition(n *uint64) error {
+	return ctypes.ErrUnsupportedConfigNoop
+}
+
+func (c *ChainConfig) GetEIP4788Transition() *uint64 {
+	return nil
+}
+
+func (c *ChainConfig) SetEIP4788Transition(n *uint64) error {
+	return ctypes.ErrUnsupportedConfigNoop
+}
+
 func (c *ChainConfig) GetMergeVirtualTransition() *uint64 {
 	return bigNewU64(c.MergeNetsplitBlock)
 }
@@ -696,6 +765,24 @@ func (c *ChainConfig) GetMergeVirtualTransition() *uint64 {
 func (c *ChainConfig) SetMergeVirtualTransition(n *uint64) error {
 	c.MergeNetsplitBlock = setBig(c.MergeNetsplitBlock, n)
 	return nil
+}
+
+// Verkle Trie
+func (c *ChainConfig) GetVerkleTransitionTime() *uint64 {
+	return c.VerkleTime
+}
+
+func (c *ChainConfig) SetVerkleTransitionTime(n *uint64) error {
+	c.VerkleTime = n
+	return nil
+}
+
+func (c *ChainConfig) GetVerkleTransition() *uint64 {
+	return nil
+}
+
+func (c *ChainConfig) SetVerkleTransition(n *uint64) error {
+	return ctypes.ErrUnsupportedConfigNoop
 }
 
 func (c *ChainConfig) IsEnabled(fn func() *uint64, n *big.Int) bool {
@@ -1088,25 +1175,25 @@ func (c *ChainConfig) SetEthashEIP5133Transition(n *uint64) error {
 	return nil
 }
 
-func (c *ChainConfig) GetEthashDifficultyBombDelaySchedule() ctypes.Uint64BigMapEncodesHex {
+func (c *ChainConfig) GetEthashDifficultyBombDelaySchedule() ctypes.Uint64Uint256MapEncodesHex {
 	if c.GetConsensusEngineType() != ctypes.ConsensusEngineT_Ethash {
 		return nil
 	}
 	return nil
 }
 
-func (c *ChainConfig) SetEthashDifficultyBombDelaySchedule(m ctypes.Uint64BigMapEncodesHex) error {
+func (c *ChainConfig) SetEthashDifficultyBombDelaySchedule(m ctypes.Uint64Uint256MapEncodesHex) error {
 	return ctypes.ErrUnsupportedConfigNoop
 }
 
-func (c *ChainConfig) GetEthashBlockRewardSchedule() ctypes.Uint64BigMapEncodesHex {
+func (c *ChainConfig) GetEthashBlockRewardSchedule() ctypes.Uint64Uint256MapEncodesHex {
 	if c.GetConsensusEngineType() != ctypes.ConsensusEngineT_Ethash {
 		return nil
 	}
 	return nil
 }
 
-func (c *ChainConfig) SetEthashBlockRewardSchedule(m ctypes.Uint64BigMapEncodesHex) error {
+func (c *ChainConfig) SetEthashBlockRewardSchedule(m ctypes.Uint64Uint256MapEncodesHex) error {
 	return ctypes.ErrUnsupportedConfigNoop
 }
 
