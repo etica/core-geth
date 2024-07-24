@@ -180,7 +180,7 @@ type CoreGethChainConfig struct {
 
 	ECIP1010PauseBlock *big.Int `json:"ecip1010PauseBlock,omitempty"` // ECIP1010 pause HF block
 	ECIP1010Length     *big.Int `json:"ecip1010Length,omitempty"`     // ECIP1010 length
-	ETIP1017FBlock     *big.Int `json:"etip1017FBlock,omitempty"` // EGAZ tail emission
+	ETIP1017FBlock     *big.Int `json:"etip1017FBlock,omitempty"`     // EGAZ tail emission
 	ECIP1017FBlock     *big.Int `json:"ecip1017FBlock,omitempty"`
 	ECIP1017EraRounds  *big.Int `json:"ecip1017EraRounds,omitempty"` // ECIP1017 era rounds
 	ECIP1080FBlock     *big.Int `json:"ecip1080FBlock,omitempty"`
@@ -284,6 +284,8 @@ type CoreGethChainConfig struct {
 	Lyra2NonceTransitionBlock *big.Int `json:"lyra2NonceTransitionBlock,omitempty"`
 
 	EticaSmartContractv2 *big.Int `json:"EticaSmartContractv2,omitempty"`
+
+	EticaRandomX *big.Int `json:"EticaRandomX,omitempty"`
 }
 
 // String implements the fmt.Stringer interface.

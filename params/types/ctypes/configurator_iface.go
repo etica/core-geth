@@ -256,6 +256,10 @@ type ProtocolSpecifier interface {
 	GetEticaSmartContractv2Transition() *uint64
 	SetEticaSmartContractv2Transition(n *uint64) error
 
+	// RandomX:
+	GetEticaRandomXTransition() *uint64
+	SetEticaRandomXTransition(n *uint64) error
+
 	// GetEIP4788TransitionTime implements EIP4788 - Beacon block root in the EVM - https://eips.ethereum.org/EIPS/eip-4788
 	GetEIP4788TransitionTime() *uint64
 	SetEIP4788TransitionTime(n *uint64) error

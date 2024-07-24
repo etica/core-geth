@@ -1266,3 +1266,12 @@ func (c *ChainConfig) SetEthashETIP1017Transition(i *uint64) error {
 	}
 	return ctypes.ErrUnsupportedConfigFatal
 }
+
+func (c *ChainConfig) GetEticaRandomXTransition() *uint64 {
+	return bigNewU64(c.EticaRandomX)
+}
+
+func (c *ChainConfig) SetEticaRandomXTransition(n *uint64) error {
+	c.EticaRandomX = setBig(c.EticaRandomX, n)
+	return nil
+}

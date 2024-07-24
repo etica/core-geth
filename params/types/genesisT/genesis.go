@@ -1173,3 +1173,11 @@ func (g *Genesis) GetEthashETIP1017Transition() *uint64 {
 func (g *Genesis) SetEthashETIP1017Transition(n *uint64) error {
 	return g.Config.SetEthashETIP1017Transition(n)
 }
+
+func (g *Genesis) GetEticaRandomXTransition() *uint64 {
+	return g.Config.GetEticaRandomXTransition()
+}
+
+func (g *Genesis) SetEticaRandomXTransition(n *uint64) error {
+	return g.Config.SetEticaRandomXTransition(n)
+}

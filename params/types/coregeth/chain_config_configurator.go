@@ -1018,7 +1018,6 @@ func (c *CoreGethChainConfig) SetEthashEIP649Transition(n *uint64) error {
 	return nil
 }
 
-
 func (c *CoreGethChainConfig) GetEthashEIP1234Transition() *uint64 {
 	if c.GetConsensusEngineType() != ctypes.ConsensusEngineT_Ethash {
 		return nil
@@ -1432,7 +1431,6 @@ func (c *CoreGethChainConfig) SetLyra2NonceTransition(n *uint64) error {
 	return nil
 }
 
-
 func (c *CoreGethChainConfig) GetEticaSmartContractv2Transition() *uint64 {
 	return bigNewU64(c.EticaSmartContractv2)
 }
@@ -1454,5 +1452,14 @@ func (c *CoreGethChainConfig) SetEthashETIP1017Transition(n *uint64) error {
 		return ctypes.ErrUnsupportedConfigFatal
 	}
 	c.ETIP1017FBlock = setBig(c.ETIP1017FBlock, n)
+	return nil
+}
+
+func (c *CoreGethChainConfig) GetEticaRandomXTransition() *uint64 {
+	return bigNewU64(c.EticaRandomX)
+}
+
+func (c *CoreGethChainConfig) SetEticaRandomXTransition(n *uint64) error {
+	c.EticaRandomX = setBig(c.EticaRandomX, n)
 	return nil
 }
