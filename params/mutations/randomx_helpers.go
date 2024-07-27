@@ -63,11 +63,6 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 	}
 	defer DestroyVM(vm)
 	fmt.Printf("EticaSmartContractAddress: %s\n", vars.EticaSmartContractAddress)
-	// Check if the transaction is calling the mintrandomX() function
-	if !IsSolutionProposal(tx.Data()) {
-		fmt.Println("Transaction is not a mintrandomX call")
-		return nil
-	}
 	if tx.To() == nil || *tx.To() != vars.EticaSmartContractAddress {
 		fmt.Println("Transaction is not to Etica smart contract")
 		return nil
@@ -168,7 +163,7 @@ func IsSolutionProposal(data []byte) bool {
 	functionSelector := data[:4]
 	fmt.Printf("Function selector: %s\n", hex.EncodeToString(functionSelector))
 	// Replace with actual selector for mintrandomX
-	expectedSelector := []byte{0x00, 0x96, 0xb4, 0x9c} // Actual selector for mintrandomX f0a9b55b
+	expectedSelector := []byte{0x03, 0x7d, 0x2f, 0x35} // Actual selector for mintrandomX f0a9b55b
 	return bytes.Equal(functionSelector, expectedSelector)
 }
 
@@ -181,7 +176,7 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, curren
 
 	// The first 4 bytes are the function selector, which we can check
 	functionSelector := data[:4]
-	expectedSelector := []byte{0x00, 0x96, 0xb4, 0x9c} // Need to Replace with actual selector for mintrandomX
+	expectedSelector := []byte{0x03, 0x7d, 0x2f, 0x35} // Need to Replace with actual selector for mintrandomX
 	if !bytes.Equal(functionSelector, expectedSelector) {
 		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Invalid function selector")
 	}
@@ -208,8 +203,8 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, curren
 	seedHashOffset := new(big.Int).SetBytes(data[164:196]).Uint64()
 
 	// Extract extraNonce (8 bytes)
-	copy(extraNonce[:], data[55:63])
-	fmt.Printf("Extracted nonce: %x (hex) \n", extraNonce)
+	copy(extraNonce[:], data[196:204])
+	fmt.Printf("Extracted extraNonce: %x (hex) \n", extraNonce)
 
 	// Extract blockHeader (dynamic bytes)
 	blockHeaderStart := 4 + blockHeaderOffset
