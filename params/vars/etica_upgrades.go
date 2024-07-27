@@ -23,7 +23,7 @@ import (
 )
 
 // Etica Mainnet Smart Contract //
-var EticaSmartContractAddress = common.HexToAddress("0x3Ea96AfaFCD96c20B76EAA029cA3B8066eF67c46") // Etica Mainnet Smart Contract Warning: dont forget to set it back to 0x34c61EA91bAcdA647269d4e310A86b875c09946f after tests
+var EticaSmartContractAddress = common.HexToAddress("0xcb8aa9611177a038b1c3f4485FFb5EF8C27E243B") // Etica Mainnet Smart Contract Warning: dont forget to set it back to 0x34c61EA91bAcdA647269d4e310A86b875c09946f after tests
 // Crucible Testnet Smart Contract //
 var CrucibleSmartContractAddress = common.HexToAddress("0x558593Bc92E6F242a604c615d93902fc98efcA82")
 
