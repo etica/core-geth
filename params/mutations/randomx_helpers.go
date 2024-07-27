@@ -91,6 +91,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 	fmt.Println("Transaction is a mintrandomX call")
 	fmt.Printf("Extracted block header: %x\n", blockHeader)
 	fmt.Printf("Extracted nonce: %x\n", nonce)
+	fmt.Printf("Extracted ExtraNonce: %x\n", nonce)
 	fmt.Printf("Extracted claimedTarget: %s\n", claimedTarget.String())
 
 	fmt.Printf("SeedHash: %v\n", seedHash)
