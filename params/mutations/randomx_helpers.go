@@ -126,7 +126,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 	// Step 3: Truncate extraNonceHash to extraNonceSize
 	truncatedExtraNonceHash := extraNonceHash[:8]
 
-	fmt.Printf("*-*-**-*-**-*-**-*-**-*-*-*- truncatedExtraNonceHash *-**-*-*-*-*-**-*-*-*-*-* : %s\n", truncatedExtraNonceHash)
+	fmt.Printf("*-*-**-*-**-*-**-*-**-*-*-*- truncatedExtraNonceHash *-**-*-*-*-*-**-*-*-*-*-* : %x\n", truncatedExtraNonceHash)
 
 	fmt.Printf("blobWithNonce BEFORE insert truncatedExtraNonceHash:   %x\n", blobWithNonce)
 
