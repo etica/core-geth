@@ -15,6 +15,8 @@ import (
 )
 
 const nonceOffset = 39
+const reservedExtranonceSize = 8 // 8 bytes reservedExtranonce (guaranties uniqueness and prevent collisions, each miner mines with a specific blob)
+const reservedOffset = 55
 
 func CalculateDigest(challengeNumber string, sender common.Address, nonce *big.Int) [32]byte {
 	// Convert challengeNumber to bytes
@@ -61,6 +63,11 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 	}
 	defer DestroyVM(vm)
 	fmt.Printf("EticaSmartContractAddress: %s\n", vars.EticaSmartContractAddress)
+	// Check if the transaction is calling the mintrandomX() function
+	if !IsSolutionProposal(tx.Data()) {
+		fmt.Println("Transaction is not a mintrandomX call")
+		return nil
+	}
 	if tx.To() == nil || *tx.To() != vars.EticaSmartContractAddress {
 		fmt.Println("Transaction is not to Etica smart contract")
 		return nil
@@ -76,7 +83,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 
 	fmt.Println("Transaction is to Etica smart contract")
 
-	nonce, blockHeader, currentChallenge, randomxHash, claimedTarget, seedHash, err := ExtractSolutionData(tx.Data())
+	nonce, blockHeader, currentChallenge, randomxHash, claimedTarget, seedHash, extraNonce, err := ExtractSolutionData(tx.Data())
 	if err != nil {
 		if err.Error() == "Invalid function selector" {
 			fmt.Println("Failed to Extract Solution Data, Invalid function selector")
@@ -104,6 +111,34 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 	copy(blobWithNonce, blockHeader)
 	copy(blobWithNonce[nonceOffset:], nonce[:])
 
+	// Get the sender's address
+	from, err := types.Sender(types.NewEIP155Signer(tx.ChainId()), tx)
+	if err != nil {
+		return fmt.Errorf("failed to get transaction sender: %v", err)
+	}
+
+	fmt.Printf("Miner from: %x\n", from)
+
+	extraNonceHash := crypto.Keccak256Hash(
+		from.Bytes(),
+		common.LeftPadBytes(extraNonce[:], 8),
+		common.LeftPadBytes(currentChallenge[:], 32),
+	)
+
+	fmt.Printf("*-*-**-*-**-*-**-*-**-*-*-*- extraNonceHash *-**-*-*-*-*-**-*-*-*-*-* : %s\n", extraNonceHash.Hex())
+
+	// Step 3: Truncate extraNonceHash to extraNonceSize
+	truncatedExtraNonceHash := extraNonceHash[:8]
+
+	fmt.Printf("*-*-**-*-**-*-**-*-**-*-*-*- truncatedExtraNonceHash *-**-*-*-*-*-**-*-*-*-*-* : %s\n", truncatedExtraNonceHash)
+
+	fmt.Printf("blobWithNonce BEFORE insert truncatedExtraNonceHash:   %x\n", blobWithNonce)
+
+	// Step 4: Insert the truncated extraNonceHash at reservedOffset (55 bytes)
+	copy(blobWithNonce[reservedOffset:], truncatedExtraNonceHash)
+
+	fmt.Printf("blobWithNonce AFTER insert truncatedExtraNonceHash:   %x\n", blobWithNonce)
+
 	// valid, err := CheckSolution(vm, blockHeader, nonce, correctSolution, difficulty) -- > replaced by next line:
 	valid, err := CheckRandomxSolution(vm, blobWithNonce, randomxHash, claimedTarget, blockHeight, seedHash)
 
@@ -114,13 +149,6 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 	if valid {
 		fmt.Println("RandomX verification passed")
 
-		// Get the sender's address
-		from, err := types.Sender(types.NewEIP155Signer(tx.ChainId()), tx)
-		if err != nil {
-			return fmt.Errorf("failed to get transaction sender: %v", err)
-		}
-
-		fmt.Printf("Miner from: %x\n", from)
 		// Update the RandomX state
 		updateRandomXState(statedb, currentChallenge, nonce, from, randomxHash, claimedTarget, seedHash)
 		// return something here to main process for success message
@@ -144,18 +172,18 @@ func IsSolutionProposal(data []byte) bool {
 	return bytes.Equal(functionSelector, expectedSelector)
 }
 
-func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, currentChallenge [32]byte, randomxHash []byte, claimedTarget *big.Int, seedHash []byte, err error) {
+func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, currentChallenge [32]byte, randomxHash []byte, claimedTarget *big.Int, seedHash []byte, extraNonce [8]byte, err error) {
 	// Check if the data is long enough to contain all required fields
-	// 4 (selector) + 32 (nonce) + 80 (blockHeader) + 32 (currentChallenge) + 32 (randomxHash) + 32 (claimedTarget) + 32 (seedHash) = 244 bytes
-	if len(data) < 244 {
-		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, errors.New("Data too short to contain solution data")
+	// 4 (selector) + 32 (nonce) + 80 (blockHeader) + 32 (currentChallenge) + 32 (randomxHash) + 32 (claimedTarget) + 32 (seedHash) + 8 (extraNonce) = 252 bytes
+	if len(data) < 252 {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short to contain solution data")
 	}
 
 	// The first 4 bytes are the function selector, which we can check
 	functionSelector := data[:4]
 	expectedSelector := []byte{0x00, 0x96, 0xb4, 0x9c} // Need to Replace with actual selector for mintrandomX
 	if !bytes.Equal(functionSelector, expectedSelector) {
-		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, errors.New("Invalid function selector")
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Invalid function selector")
 	}
 
 	// Extract nonce (4 bytes)
@@ -179,13 +207,17 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, curren
 	// Extract seedHash offset
 	seedHashOffset := new(big.Int).SetBytes(data[164:196]).Uint64()
 
+	// Extract extraNonce (8 bytes)
+	copy(extraNonce[:], data[55:63])
+	fmt.Printf("Extracted nonce: %x (hex) \n", extraNonce)
+
 	// Extract blockHeader (dynamic bytes)
 	blockHeaderStart := 4 + blockHeaderOffset
 	blockHeaderLength := new(big.Int).SetBytes(data[blockHeaderStart : blockHeaderStart+32]).Uint64()
 	blockHeaderStart += 32
 	blockHeaderEnd := blockHeaderStart + blockHeaderLength
 	if blockHeaderEnd > uint64(len(data)) {
-		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, errors.New("Invalid blockHeader length")
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Invalid blockHeader length")
 	}
 	blockHeader = make([]byte, blockHeaderLength)
 	copy(blockHeader, data[blockHeaderStart:blockHeaderEnd])
@@ -197,7 +229,7 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, curren
 	randomxHashStart += 32
 	randomxHashEnd := randomxHashStart + randomxHashLength
 	if randomxHashEnd > uint64(len(data)) {
-		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, errors.New("Invalid randomxHash length")
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Invalid randomxHash length")
 	}
 	randomxHash = make([]byte, randomxHashLength)
 	copy(randomxHash, data[randomxHashStart:randomxHashEnd])
@@ -209,13 +241,13 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, curren
 	seedHashStart += 32
 	seedHashEnd := seedHashStart + seedHashLength
 	if seedHashEnd > uint64(len(data)) {
-		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, errors.New("Invalid seedHash length")
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Invalid seedHash length")
 	}
 	seedHash = make([]byte, seedHashLength)
 	copy(seedHash, data[seedHashStart:seedHashEnd])
 	fmt.Printf("Extracted seedHash (length %d): %x\n", seedHashLength, seedHash)
 
-	return nonce, blockHeader, currentChallenge, randomxHash, claimedTarget, seedHash, nil
+	return nonce, blockHeader, currentChallenge, randomxHash, claimedTarget, seedHash, extraNonce, nil
 }
 
 /*
