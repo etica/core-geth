@@ -2,9 +2,9 @@ package mutations
 
 /*
 #cgo CFLAGS: -I./include
-#cgo linux LDFLAGS: -L./lib -lrandomx -lstdc++
+#cgo linux LDFLAGS: -L./lib/linux -lrandomx -lstdc++
 #cgo darwin LDFLAGS: -L./lib -lrandomx -lstdc++
-#cgo windows LDFLAGS: -L./lib -lrandomx -lstdc++ -lws2_32 -ladvapi32
+#cgo windows LDFLAGS: -L./lib/windows -lrandomx -lstdc++ -lws2_32 -ladvapi32
 #include "randomx.h"
 */
 import "C"
