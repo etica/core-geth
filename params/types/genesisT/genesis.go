@@ -1174,6 +1174,14 @@ func (g *Genesis) SetEthashETIP1017Transition(n *uint64) error {
 	return g.Config.SetEthashETIP1017Transition(n)
 }
 
+func (g *Genesis) GetEticaSmartContractv3Transition() *uint64 {
+	return g.Config.GetEticaSmartContractv3Transition()
+}
+
+func (g *Genesis) SetEticaSmartContractv3Transition(n *uint64) error {
+	return g.Config.SetEticaSmartContractv3Transition(n)
+}
+
 func (g *Genesis) GetEticaRandomXTransition() *uint64 {
 	return g.Config.GetEticaRandomXTransition()
 }

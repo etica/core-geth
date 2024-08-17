@@ -1455,6 +1455,15 @@ func (c *CoreGethChainConfig) SetEthashETIP1017Transition(n *uint64) error {
 	return nil
 }
 
+func (c *CoreGethChainConfig) GetEticaSmartContractv3Transition() *uint64 {
+	return bigNewU64(c.EticaSmartContractv3)
+}
+
+func (c *CoreGethChainConfig) SetEticaSmartContractv3Transition(n *uint64) error {
+	c.EticaSmartContractv3 = setBig(c.EticaSmartContractv3, n)
+	return nil
+}
+
 func (c *CoreGethChainConfig) GetEticaRandomXTransition() *uint64 {
 	return bigNewU64(c.EticaRandomX)
 }

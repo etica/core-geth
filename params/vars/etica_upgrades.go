@@ -27,11 +27,11 @@ var EticaSmartContractAddress = common.HexToAddress("0x37f6AFaEe5886Ae3eC5E6d987
 // Crucible Testnet Smart Contract //
 var CrucibleSmartContractAddress = common.HexToAddress("0x558593Bc92E6F242a604c615d93902fc98efcA82")
 
-// --------- Smart contract hardfork 1, main smart contract loads bytecode from following contract ----------- //
+// --------- Smart contract hardfork 1 ----------- //
+
+// --------- main smart contract loads bytecode from following contract ----------- //
 var EticaSmartContractAddressv2 = common.HexToAddress("0x64cB3Bc8cF8324432838B5c58519F782482C9861") // Etica v2, Meticulous Hardfork
 var CrucibleSmartContractAddressv2 = common.HexToAddress("0x3cA0Dc9373F33993Ec25643B92759ce637C8400f")
-
-// --------- Smart contract hardfork 1 ----------- //
 
 // Eticav2ForkBlockExtra is the block header extra-data field to set for the Eticav2 fork
 // point and a number of consecutive blocks to allow fast/light syncers to correctly
@@ -43,3 +43,20 @@ var Eticav2ForkBlockExtra = common.FromHex("0x657469636176322d686172642d666f726b
 var Eticav2ForkExtraRange = big.NewInt(10)
 
 // --------- Etica smart contract hardfork 1 ----------- //
+
+// --------- Smart contract hardfork 2 ----------- //
+
+// --------- main smart contract loads bytecode from following contract ----------- //
+var EticaSmartContractAddressv3 = common.HexToAddress("0x64cB3Bc8cF8324432838B5c58519F782482C9861") // Etica v3, Guardian Hardfork
+var CrucibleSmartContractAddressv3 = common.HexToAddress("0x3cA0Dc9373F33993Ec25643B92759ce637C8400f")
+
+// Eticav3ForkBlockExtra is the block header extra-data field to set for the Eticav3 fork
+// point and a number of consecutive blocks to allow fast/light syncers to correctly
+// pick the side they want.  0x677561726469616e2d686172642d666f726b is hex representation of "guardian-hard-fork".
+var Eticav3ForkBlockExtra = common.FromHex("0x677561726469616e2d686172642d666f726b")
+
+// Eticav3ForkExtraRange is the number of consecutive blocks from the Eticav3 fork point
+// to override the extra-data in to prevent no-fork attacks.
+var Eticav3ForkExtraRange = big.NewInt(10)
+
+// --------- Etica smart contract hardfork 2 ----------- //

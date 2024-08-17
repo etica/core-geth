@@ -344,17 +344,17 @@ func GenerateChain(config ctypes.ChainConfigurator, parent *types.Block, engine 
 		if eticav2Block := config.GetEticaSmartContractv2Transition(); eticav2Block != nil {
 			eticav2limit := new(big.Int).Add(new(big.Int).SetUint64(*eticav2Block), vars.Eticav2ForkExtraRange)
 			if b.header.Number.Uint64() >= *eticav2Block && b.header.Number.Cmp(eticav2limit) < 0 {
-					b.header.Extra = common.CopyBytes(vars.Eticav2ForkBlockExtra)
+				b.header.Extra = common.CopyBytes(vars.Eticav2ForkBlockExtra)
 			}
 		}
 		if generic.AsGenericCC(config).DAOSupport() && config.GetEthashEIP779Transition() != nil && *config.GetEthashEIP779Transition() == b.header.Number.Uint64() {
 			mutations.ApplyDAOHardFork(statedb)
 		}
 		if config.GetEticaSmartContractv2Transition() != nil && *config.GetEticaSmartContractv2Transition() == b.header.Number.Uint64() {
-			configEticaChainId := config.GetChainID(); 
+			configEticaChainId := config.GetChainID()
 			const EticaChainId = 61803
-            const CrucibleChainId = 61888
-            // Convert *big.Int to uint64
+			const CrucibleChainId = 61888
+			// Convert *big.Int to uint64
 			configEticaChainIdUint64 := configEticaChainId.Uint64()
 			EticaChainIdUint64 := uint64(EticaChainId)
 			CrucibleChainIdUint64 := uint64(CrucibleChainId)
@@ -364,7 +364,29 @@ func GenerateChain(config ctypes.ChainConfigurator, parent *types.Block, engine 
 				mutations.ApplyCruciblev2(statedb)
 			}
 		}
-		
+
+		if eticav3Block := config.GetEticaSmartContractv3Transition(); eticav3Block != nil {
+			eticav3limit := new(big.Int).Add(new(big.Int).SetUint64(*eticav3Block), vars.Eticav3ForkExtraRange)
+			if b.header.Number.Uint64() >= *eticav3Block && b.header.Number.Cmp(eticav3limit) < 0 {
+				b.header.Extra = common.CopyBytes(vars.Eticav3ForkBlockExtra)
+			}
+		}
+
+		if config.GetEticaSmartContractv3Transition() != nil && *config.GetEticaSmartContractv3Transition() == b.header.Number.Uint64() {
+			configEticaChainId := config.GetChainID()
+			const EticaChainId = 61803
+			const CrucibleChainId = 61888
+			// Convert *big.Int to uint64
+			configEticaChainIdUint64 := configEticaChainId.Uint64()
+			EticaChainIdUint64 := uint64(EticaChainId)
+			CrucibleChainIdUint64 := uint64(CrucibleChainId)
+			if configEticaChainIdUint64 == EticaChainIdUint64 {
+				mutations.ApplyEticav3(statedb)
+			} else if configEticaChainIdUint64 == CrucibleChainIdUint64 {
+				mutations.ApplyCruciblev3(statedb)
+			}
+		}
+
 		// Execute any user modifications to the block
 		if gen != nil {
 			gen(i, b)

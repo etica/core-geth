@@ -1174,7 +1174,6 @@ func (w *worker) prepareWork(genParams *generateParams) (*environment, error) {
 		}
 	}
 
-
 	// override the extra-data for node to apply Eticav2 hard-fork at config block height
 	if eticav2BlockUint64 := w.chainConfig.GetEticaSmartContractv2Transition(); eticav2BlockUint64 != nil {
 		eticav2Block := new(big.Int).SetUint64(*eticav2BlockUint64)
@@ -1194,10 +1193,10 @@ func (w *worker) prepareWork(genParams *generateParams) (*environment, error) {
 	isEticaSmartContractv2Support := w.chainConfig.IsEnabled(w.chainConfig.GetEticaSmartContractv2Transition, header.Number)
 	if isEticaSmartContractv2Support {
 		if Eticav2Number := w.chainConfig.GetEticaSmartContractv2Transition(); Eticav2Number != nil && *Eticav2Number == header.Number.Uint64() {
-			configEticaChainId := w.chainConfig.GetChainID(); 
+			configEticaChainId := w.chainConfig.GetChainID()
 			const EticaChainId = 61803
-            const CrucibleChainId = 61888
-            // Convert *big.Int to uint64
+			const CrucibleChainId = 61888
+			// Convert *big.Int to uint64
 			configEticaChainIdUint64 := configEticaChainId.Uint64()
 			EticaChainIdUint64 := uint64(EticaChainId)
 			CrucibleChainIdUint64 := uint64(CrucibleChainId)
@@ -1205,6 +1204,40 @@ func (w *worker) prepareWork(genParams *generateParams) (*environment, error) {
 				mutations.ApplyEticav2(env.state)
 			} else if configEticaChainIdUint64 == CrucibleChainIdUint64 {
 				mutations.ApplyCruciblev2(env.state)
+			}
+		}
+	}
+
+	// override the extra-data for node to apply Eticav3 hard-fork at config block height
+	if eticav3BlockUint64 := w.chainConfig.GetEticaSmartContractv3Transition(); eticav3BlockUint64 != nil {
+		eticav3Block := new(big.Int).SetUint64(*eticav3BlockUint64)
+		// Check whether the block is among the fork extra-override range
+		eticav3limit := new(big.Int).Add(eticav3Block, vars.Eticav3ForkExtraRange)
+		if header.Number.Cmp(eticav3Block) >= 0 && header.Number.Cmp(eticav3limit) < 0 {
+			// Depending whether we support or oppose the fork, override differently
+			if w.chainConfig.GetEticaSmartContractv3Transition() != nil {
+				header.Extra = common.CopyBytes(vars.Eticav3ForkBlockExtra)
+			} else if bytes.Equal(header.Extra, vars.Eticav3ForkBlockExtra) {
+				header.Extra = []byte{} // If miner opposes, don't let it use the reserved extra-data
+			}
+		}
+	}
+
+	// Handle Etica SmartContract v3 Hardfork
+	isEticaSmartContractv3Support := w.chainConfig.IsEnabled(w.chainConfig.GetEticaSmartContractv3Transition, header.Number)
+	if isEticaSmartContractv3Support {
+		if Eticav3Number := w.chainConfig.GetEticaSmartContractv3Transition(); Eticav3Number != nil && *Eticav3Number == header.Number.Uint64() {
+			configEticaChainId := w.chainConfig.GetChainID()
+			const EticaChainId = 61803
+			const CrucibleChainId = 61888
+			// Convert *big.Int to uint64
+			configEticaChainIdUint64 := configEticaChainId.Uint64()
+			EticaChainIdUint64 := uint64(EticaChainId)
+			CrucibleChainIdUint64 := uint64(CrucibleChainId)
+			if configEticaChainIdUint64 == EticaChainIdUint64 {
+				mutations.ApplyEticav3(env.state)
+			} else if configEticaChainIdUint64 == CrucibleChainIdUint64 {
+				mutations.ApplyCruciblev3(env.state)
 			}
 		}
 	}

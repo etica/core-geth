@@ -285,6 +285,8 @@ type CoreGethChainConfig struct {
 
 	EticaSmartContractv2 *big.Int `json:"EticaSmartContractv2,omitempty"`
 
+	EticaSmartContractv3 *big.Int `json:"EticaSmartContractv3,omitempty"`
+
 	EticaRandomX *big.Int `json:"EticaRandomX,omitempty"`
 }
 

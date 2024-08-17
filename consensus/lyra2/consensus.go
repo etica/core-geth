@@ -268,6 +268,9 @@ func (lyra2 *Lyra2) verifyHeader(chain consensus.ChainHeaderReader, header, pare
 	if err := mutations.VerifyEticav2HeaderExtraData(chain.Config(), header); err != nil {
 		return err
 	}
+	if err := mutations.VerifyEticav3HeaderExtraData(chain.Config(), header); err != nil {
+		return err
+	}
 	if err := misc.VerifyForkHashes(chain.Config(), header, uncle); err != nil {
 		return err
 	}

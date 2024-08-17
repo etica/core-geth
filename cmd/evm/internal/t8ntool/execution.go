@@ -211,6 +211,26 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig ctypes.ChainConfigura
 		}
 	}
 
+	// Handle Etica SmartContract v3 Hardfork
+	isEticaSmartContractv3Support := chainConfig.IsEnabled(chainConfig.GetEticaSmartContractv3Transition, new(big.Int).SetUint64(pre.Env.Number))
+	if isEticaSmartContractv3Support {
+		if Eticav3Number := chainConfig.GetEticaSmartContractv3Transition(); Eticav3Number != nil && *Eticav3Number == pre.Env.Number {
+			configEticaChainId := chainConfig.GetChainID()
+			const EticaChainId = 61803
+			const CrucibleChainId = 61888
+			// Convert *big.Int to uint64
+			configEticaChainIdUint64 := configEticaChainId.Uint64()
+			EticaChainIdUint64 := uint64(EticaChainId)
+			CrucibleChainIdUint64 := uint64(CrucibleChainId)
+			if configEticaChainIdUint64 == EticaChainIdUint64 {
+				mutations.ApplyEticav3(statedb)
+			} else if configEticaChainIdUint64 == CrucibleChainIdUint64 {
+				mutations.ApplyCruciblev3(statedb)
+			}
+
+		}
+	}
+
 	if beaconRoot := pre.Env.ParentBeaconBlockRoot; beaconRoot != nil {
 		evm := vm.NewEVM(vmContext, vm.TxContext{}, statedb, chainConfig, vmConfig)
 		core.ProcessBeaconBlockRoot(*beaconRoot, evm, statedb)
