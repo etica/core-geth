@@ -230,14 +230,14 @@ func ApplyTransaction(config ctypes.ChainConfigurator, bc ChainContext, author *
 		CrucibleChainIdUint64 := uint64(CrucibleChainId)
 		if configEticaChainIdUint64 == EticaChainIdUint64 {
 			fmt.Printf("*-*-*-*-**-*-*-*-*-*- VerifyEticaTransaction WITH ETICA SMART CONTRACT ADDRESS *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
-			err := mutations.VerifyEticaTransaction(tx, statedb)
+			err := mutations.VerifyEticaTransaction(tx, statedb, EticaChainIdUint64)
 			if err != nil {
 				fmt.Println("Etica transaction verification failed", "err", err)
 				return nil, err
 			}
 		} else if configEticaChainIdUint64 == CrucibleChainIdUint64 {
 			fmt.Printf("*-*-*-*-**-*-*-*-*-*- VerifyEticaTransaction WITH CRUCIBLE SMART CONTRACT ADDRESS *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
-			err := mutations.VerifyEticaTransaction(tx, statedb)
+			err := mutations.VerifyEticaTransaction(tx, statedb, CrucibleChainIdUint64)
 			if err != nil {
 				fmt.Println("Etica transaction verification failed", "err", err)
 				return nil, err

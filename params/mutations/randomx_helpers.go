@@ -76,7 +76,7 @@ func CalculateDigest(challengeNumber string, sender common.Address, nonce *big.I
 	return digest
 }
 
-func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error {
+func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chainId uint64) error {
 	fmt.Printf("*-*-*-*-**-*-*-*-*-*-Verifying Etica transaction *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
 	fmt.Printf("Verifying Etica transaction: %s\n", tx.Hash().Hex())
 	txData := tx.Data()
@@ -84,8 +84,28 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 	fmt.Printf("Verifying Etica transaction data (hex): 0x%s\n", txDataHex)
 	fmt.Printf("Verifying Etica transaction data (raw): %v\n", txData)
 
-	fmt.Printf("EticaSmartContractAddress: %s\n", vars.EticaSmartContractAddress)
-	if tx.To() == nil || *tx.To() != vars.EticaSmartContractAddress {
+	var contractAddress common.Address
+
+	// Determine which contract address to use based on the chainId START
+	if chainId == 61803 { // Etica mainnet
+		contractAddress = vars.EticaSmartContractAddress
+	} else if chainId == 818889 { // Crucible testnet
+		contractAddress = vars.CrucibleSmartContractAddress
+	} else {
+		return fmt.Errorf("unsupported chain ID: %d", chainId)
+	}
+
+	fmt.Printf("------- µµµµ ---- µµµµ -- µµµµµ -- µµµµµ -----> contractAddress: %s\n", contractAddress)
+
+	if (chainId == 61803 && contractAddress != vars.EticaSmartContractAddress) || (chainId == 818889 && contractAddress != vars.CrucibleSmartContractAddress) {
+		fmt.Printf("wrong contractAddress for this chain ID contractAddress: %s\n", contractAddress)
+		return fmt.Errorf("wrong contractAddress for this chain ID: %d", chainId)
+	}
+	// Determine which contract address to use based on the chainId END
+	// Now all checks are done, contractAddress is fully checked and contains the right smart contract address
+
+	fmt.Printf("------- µµµµ ---- µµµµ -- µµµµµ -- µµµµµ -----> EticaSmartContractAddress: %s\n", contractAddress)
+	if tx.To() == nil || *tx.To() != contractAddress {
 		fmt.Println("Transaction is not to Etica smart contract")
 		return nil
 	} else {
@@ -190,7 +210,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 		fmt.Println("RandomX verification passed")
 
 		// Update the RandomX state
-		updateRandomXState(statedb, currentChallenge, nonce, from, randomxHash, claimedTarget, seedHash)
+		updateRandomXState(statedb, currentChallenge, nonce, from, randomxHash, claimedTarget, seedHash, contractAddress)
 		// return something here to main process for success message
 
 	} else {
@@ -524,10 +544,10 @@ func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce 
 	fmt.Printf("Solution Seal: %s\n", solutionSeal.Hex())
 } */
 
-func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce [4]byte, miner common.Address, randomxHash []byte, claimedTarget *big.Int, seedHash []byte) {
+func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce [4]byte, miner common.Address, randomxHash []byte, claimedTarget *big.Int, seedHash []byte, contractAddress common.Address) {
 	solutionSlot := calculateStorageSlot(challengeNumber, miner)
 	fmt.Printf("solutionSlot: %s\n", solutionSlot)
-	existingSolution := statedb.GetState(vars.EticaSmartContractAddress, solutionSlot)
+	existingSolution := statedb.GetState(contractAddress, solutionSlot)
 	fmt.Printf("existingSolution: %s\n", existingSolution)
 
 	if existingSolution != (common.Hash{}) {
@@ -561,7 +581,7 @@ func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce 
 	fmt.Printf("claimedTarget: %s\n", claimedTarget)
 	fmt.Printf("randomxHash: %x\n", randomxHash)
 
-	statedb.SetState(vars.EticaSmartContractAddress, solutionSlot, common.BytesToHash(solutionSeal[:]))
+	statedb.SetState(contractAddress, solutionSlot, common.BytesToHash(solutionSeal[:]))
 
 	fmt.Printf("Updated randomxSealSolutions:\n")
 	challengeHex := "0x" + hex.EncodeToString(challengeNumber[:])
