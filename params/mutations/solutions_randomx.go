@@ -35,11 +35,19 @@ func CheckSolutionWithTarget(vm unsafe.Pointer, blockHeader []byte, nonce []byte
 }
 
 func CheckRandomxSolution(vm unsafe.Pointer, blobWithNonce []byte, expectedHash []byte, claimedTarget *big.Int, blockHeight uint64, seedHash []byte) (bool, error) {
+
+	fmt.Printf("*-*-**-**-*-*- ------------- INSIDE CheckRandomxSolution() ---------- *-*-*-*-*-*-**-*")
 	if vm == nil {
+		fmt.Printf("------------- ERROR in CheckRandomxSolution() vm is nil ----------")
 		return false, fmt.Errorf("RandomX VM is not initialized")
 	}
 
-	calculatedHash := calculateRandomXHash(blobWithNonce, seedHash)
+	calculatedHash, err := calculateRandomXHash(vm, blobWithNonce, seedHash)
+
+	if err != nil || calculatedHash == nil {
+		fmt.Printf("------------- ERROR in CheckRandomxSolution() calculatedHash failed ----------")
+		return false, err // Propagate the error if hash calculation fails
+	}
 
 	if !bytes.Equal(calculatedHash, expectedHash) {
 		return false, fmt.Errorf("expectedHash does not match calculated hash")
@@ -79,8 +87,8 @@ func reverseBytes(data []byte) []byte {
 	return reversed
 }
 
-func calculateRandomXHash(blobWithNonce, seedHash []byte) []byte {
-	flags := FlagDefault
+func calculateRandomXHash(vm unsafe.Pointer, blobWithNonce, seedHash []byte) ([]byte, error) {
+	/*flags := FlagDefault
 	cache := InitRandomX(flags)
 	if cache == nil {
 		panic("Failed to allocate RandomX cache")
@@ -89,15 +97,17 @@ func calculateRandomXHash(blobWithNonce, seedHash []byte) []byte {
 
 	InitCache(cache, seedHash)
 
-	vm := CreateVM(cache, flags)
+	vm := CreateVM(cache, flags) */
+	fmt.Printf("*-*-**-**-*-*- ------------- INSIDE calculateRandomXHash() ---------- *-*-*-*-*-*-**-*")
 	if vm == nil {
-		panic("Failed to create RandomX VM")
+		fmt.Printf("------------- ERROR in calculateRandomXHash() vm is nil ----------")
+		return nil, fmt.Errorf("RandomX VM is not initialized")
 	}
-	defer DestroyVM(vm)
 
 	hash := CalculateHash(vm, blobWithNonce)
+	fmt.Printf("*-*-**-**-*-*- ------------- calculateRandomXHash() SUCCESS ---------- *-*-*-*-*-*-**-*")
 
-	return hash
+	return hash, nil
 }
 
 // Helper function to calculate target from difficulty

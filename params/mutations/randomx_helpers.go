@@ -18,6 +18,40 @@ const nonceOffset = 39
 const reservedExtranonceSize = 8 // 8 bytes reservedExtranonce (guaranties uniqueness and prevent collisions, each miner mines with a specific blob)
 const reservedOffset = 55
 
+func initRandomXSystem(flags RandomXFlags, seed []byte) error {
+
+	fmt.Printf("*999-*-*999*-**-*999*- ------------- INSIDE initRandomXSystem() ---------- *999-*-*999*-**-*999* *-*-*-*-*-*-**-*")
+	// Always destroy the VM and cache before reinitializing
+	if globalRandomXVM != nil {
+		fmt.Printf("*999-*-*999*-**-*999*- ----- globalRandomXVM empty calling -------- DestroyVM ---------- *999-*-*999*-**-*999* *-*-*-*-*-*-**-*")
+		DestroyVM(globalRandomXVM)
+		globalRandomXVM = nil
+	}
+	if globalRandomXCache != nil {
+		fmt.Printf("*999-*-*999*-**-*999*- ----- globalRandomXCache empty calling -------- DestroyRandomX ---------- *999-*-*999*-**-*999* *-*-*-*-*-*-**-*")
+		DestroyRandomX(globalRandomXCache)
+		globalRandomXCache = nil
+	}
+
+	// Reinitialize cache and VM
+	globalRandomXCache = InitRandomX(flags)
+	if globalRandomXCache == nil {
+		fmt.Printf("*999-*-*999*-**-*999*- ----- InitRandomX error failed to allocate RandomX cache --- *999-*-*999*-**-*999* *-*-*-*-*-*-**-*")
+		return fmt.Errorf("failed to allocate RandomX cache")
+	}
+	InitCache(globalRandomXCache, seed)
+
+	globalRandomXVM = CreateVM(globalRandomXCache, flags)
+	if globalRandomXVM == nil {
+		fmt.Printf("*999-*-*999*-**-*999*- ----- InitRandomX error failed to create RandomX VM --- *999-*-*999*-**-*999* *-*-*-*-*-*-**-*")
+		return fmt.Errorf("failed to create RandomX VM")
+	}
+
+	fmt.Printf("*-*-** 999999999 -**-*-*- ------------- initRandomXSystem() SUCCESS ---------- *-*-*-*999999999999 *-*-**-*")
+
+	return nil
+}
+
 func CalculateDigest(challengeNumber string, sender common.Address, nonce *big.Int) [32]byte {
 	// Convert challengeNumber to bytes
 	challengeBytes := []byte(challengeNumber)
@@ -67,7 +101,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 	fmt.Println("Transaction is to Etica smart contract")
 
 	// Initialize RandomX (you might want to do this once and reuse it)
-	cache := InitRandomX(FlagDefault)
+	/* cache := InitRandomX(FlagDefault)
 	if cache == nil {
 		return fmt.Errorf("failed to initialize RandomX cache")
 	}
@@ -77,7 +111,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 	if vm == nil {
 		return fmt.Errorf("failed to create RandomX")
 	}
-	defer DestroyVM(vm)
+	defer DestroyVM(vm) */
 
 	nonce, blockHeader, currentChallenge, randomxHash, claimedTarget, seedHash, extraNonce, err := ExtractSolutionData(tx.Data())
 	if err != nil {
@@ -87,6 +121,15 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 		}
 		fmt.Printf("Error extracting solution data: %v\n", err)
 		return err
+	}
+
+	// Initialize RandomX system if needed
+	if globalRandomXCache == nil || globalRandomXVM == nil {
+		fmt.Println("*1µ1µ1µ1µ1µ1µ1µ 1µ1µ1µ1µµ1µ1µ1µ1µ1µ - calling initRandomXSystem() because globalRandomXCache or globalRandomXVM is empty  1µ1µ1µ1µ1µ1µ1µ 1µ1µ1µ1µµ1µ1µ1µ1µ1µ")
+		if err := initRandomXSystem(FlagDefault, seedHash); err != nil {
+			fmt.Printf("Error in initRandomXSystem() initializing RandomX system: %v\n", err)
+			return nil // Return nil to continue processing other transactions
+		}
 	}
 
 	fmt.Println("Transaction is a mintrandomX call")
@@ -137,7 +180,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 	fmt.Printf("blobWithNonce AFTER insert truncatedExtraNonceHash:   %x\n", blobWithNonce)
 
 	// valid, err := CheckSolution(vm, blockHeader, nonce, correctSolution, difficulty) -- > replaced by next line:
-	valid, err := CheckRandomxSolution(vm, blobWithNonce, randomxHash, claimedTarget, blockHeight, seedHash)
+	valid, err := CheckRandomxSolution(globalRandomXVM, blobWithNonce, randomxHash, claimedTarget, blockHeight, seedHash)
 
 	if err != nil {
 		fmt.Printf("RandomX verification error: %v\n", err)

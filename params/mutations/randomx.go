@@ -30,6 +30,9 @@ const (
 	FlagArgon2      RandomXFlags = C.RANDOMX_FLAG_ARGON2
 )
 
+var globalRandomXCache unsafe.Pointer
+var globalRandomXVM unsafe.Pointer
+
 // InitCache initializes a RandomX cache with the given seed
 func InitCache(cache unsafe.Pointer, seed []byte) {
 	C.randomx_init_cache((*C.struct_randomx_cache)(cache), unsafe.Pointer(&seed[0]), C.size_t(len(seed)))
