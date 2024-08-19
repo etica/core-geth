@@ -143,6 +143,25 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 		return err
 	}
 
+	// CHECKS SUBMITED TARGET IS INFERIOR TO SMART CONTRACT miningTarget | START
+	// verify claimedTarget is inferior to smart contract miningTarget to avoid contract storage spam:
+	miningTargetSlot := calculateMiningTargetSlot()
+	fmt.Printf("!!!!!! µµµµµµµµµµµµ !!!!!!!! µµµµµµµµµµµµµ Mining Target Slot: %s\n", miningTargetSlot.Hex())
+	currentMiningTarget := statedb.GetState(contractAddress, miningTargetSlot)
+	fmt.Printf("!!!!!! µµµµµµµµµµµµ !!!!!!!! µµµµµµµµµµµµµ currentMiningTarget (hex): %s\n", currentMiningTarget.Hex())
+
+	// Convert currentMiningTarget to *big.Int
+	currentMiningTargetBigInt := new(big.Int).SetBytes(currentMiningTarget.Bytes())
+
+	fmt.Printf("!!!!!! µµµµµµµµµµµµ !!!!!!!! µµµµµµµµµµµµµ currentMiningTargetBigInt (decimal): %s\n", currentMiningTargetBigInt.String())
+	fmt.Printf("!!!!!! µµµµµµµµµµµµ !!!!!!!! µµµµµµµµµµµµµ currentMiningTargetBigInt (hex): %x\n", currentMiningTargetBigInt)
+
+	// Compare claimedTarget with currentMiningTarget
+	if claimedTarget.Cmp(currentMiningTargetBigInt) > 0 {
+		return fmt.Errorf("claimedTarget (%s) is less than currentMiningTarget (%s)", claimedTarget.String(), currentMiningTargetBigInt.String())
+	}
+	// CHECKS SUBMITED TARGET IS INFERIOR TO SMART CONTRACT miningTarget | END
+
 	// Initialize RandomX system if needed
 	if globalRandomXCache == nil || globalRandomXVM == nil {
 		fmt.Println("*1µ1µ1µ1µ1µ1µ1µ 1µ1µ1µ1µµ1µ1µ1µ1µ1µ - calling initRandomXSystem() because globalRandomXCache or globalRandomXVM is empty  1µ1µ1µ1µ1µ1µ1µ 1µ1µ1µ1µµ1µ1µ1µ1µ1µ")
@@ -430,6 +449,17 @@ func calculateStorageSlot(challengeNumber [32]byte, minerAddress common.Address)
 	)
 
 	return finalSlot
+}
+
+func calculateMiningTargetSlot() common.Hash {
+	// The storage slot for miningTarget is at position 17
+	miningTargetSlot := big.NewInt(17)
+
+	// Left-pad the slot with zeroes to 32 bytes (256 bits)
+	slotBytes := common.LeftPadBytes(miningTargetSlot.Bytes(), 32)
+
+	// Return the storage slot as a common.Hash
+	return common.BytesToHash(slotBytes)
 }
 
 /*
