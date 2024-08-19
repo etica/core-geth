@@ -50,18 +50,6 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 	fmt.Printf("Verifying Etica transaction data (hex): 0x%s\n", txDataHex)
 	fmt.Printf("Verifying Etica transaction data (raw): %v\n", txData)
 
-	// Initialize RandomX (you might want to do this once and reuse it)
-	cache := InitRandomX(FlagDefault)
-	if cache == nil {
-		return fmt.Errorf("failed to initialize RandomX cache")
-	}
-	defer DestroyRandomX(cache)
-
-	vm := CreateVM(cache, FlagDefault)
-	if vm == nil {
-		return fmt.Errorf("failed to create RandomX")
-	}
-	defer DestroyVM(vm)
 	fmt.Printf("EticaSmartContractAddress: %s\n", vars.EticaSmartContractAddress)
 	if tx.To() == nil || *tx.To() != vars.EticaSmartContractAddress {
 		fmt.Println("Transaction is not to Etica smart contract")
@@ -77,6 +65,19 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB) error
 	}
 
 	fmt.Println("Transaction is to Etica smart contract")
+
+	// Initialize RandomX (you might want to do this once and reuse it)
+	cache := InitRandomX(FlagDefault)
+	if cache == nil {
+		return fmt.Errorf("failed to initialize RandomX cache")
+	}
+	defer DestroyRandomX(cache)
+
+	vm := CreateVM(cache, FlagDefault)
+	if vm == nil {
+		return fmt.Errorf("failed to create RandomX")
+	}
+	defer DestroyVM(vm)
 
 	nonce, blockHeader, currentChallenge, randomxHash, claimedTarget, seedHash, extraNonce, err := ExtractSolutionData(tx.Data())
 	if err != nil {
@@ -486,6 +487,11 @@ func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce 
 	existingSolution := statedb.GetState(vars.EticaSmartContractAddress, solutionSlot)
 	fmt.Printf("existingSolution: %s\n", existingSolution)
 
+	if existingSolution != (common.Hash{}) {
+		fmt.Println("randomxSealSolutions already exists, not updating")
+		return
+	}
+
 	fmt.Printf("updateRandomXState nonce is: 0x%x\n", nonce)
 	fmt.Printf("updateRandomXState claimedTarget is: %s\n", claimedTarget)
 	fmt.Printf("updateRandomXState seedHash is: 0x%x\n", seedHash)
@@ -511,11 +517,6 @@ func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce 
 	fmt.Printf("Nonce: %s\n", nonce)
 	fmt.Printf("claimedTarget: %s\n", claimedTarget)
 	fmt.Printf("randomxHash: %x\n", randomxHash)
-
-	if existingSolution != (common.Hash{}) {
-		fmt.Println("randomxSealSolutions already exists, not updating")
-		return
-	}
 
 	statedb.SetState(vars.EticaSmartContractAddress, solutionSlot, common.BytesToHash(solutionSeal[:]))
 
