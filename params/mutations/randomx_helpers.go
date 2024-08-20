@@ -432,7 +432,7 @@ Here's how we can update our code:
 
 */
 
-func calculateStorageSlot(challengeNumber [32]byte, minerAddress common.Address) common.Hash {
+func calculateStorageSlot(challengeNumber [32]byte, senderNonceHash common.Hash) common.Hash {
 	// The slot of randomxSealSolutions is 70
 	baseSlot := big.NewInt(70)
 
@@ -444,7 +444,7 @@ func calculateStorageSlot(challengeNumber [32]byte, minerAddress common.Address)
 
 	// For the second level of mapping (minerAddress)
 	finalSlot := crypto.Keccak256Hash(
-		common.LeftPadBytes(minerAddress.Bytes(), 32),
+		common.LeftPadBytes(senderNonceHash.Bytes(), 32),
 		outerLocation.Bytes(),
 	)
 
@@ -575,7 +575,15 @@ func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce 
 } */
 
 func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce [4]byte, miner common.Address, randomxHash []byte, claimedTarget *big.Int, seedHash []byte, contractAddress common.Address) {
-	solutionSlot := calculateStorageSlot(challengeNumber, miner)
+
+	sendernoncepacked := make([]byte, len(miner.Bytes())+len(nonce[:]))
+	copy(sendernoncepacked[:len(miner.Bytes())], miner.Bytes())
+	copy(sendernoncepacked[len(miner.Bytes()):], nonce[:])
+
+	senderNonceHash := crypto.Keccak256Hash(sendernoncepacked)
+	fmt.Printf("senderNonceHash: %s\n", senderNonceHash.Hex())
+
+	solutionSlot := calculateStorageSlot(challengeNumber, senderNonceHash)
 	fmt.Printf("solutionSlot: %s\n", solutionSlot)
 	existingSolution := statedb.GetState(contractAddress, solutionSlot)
 	fmt.Printf("existingSolution: %s\n", existingSolution)
