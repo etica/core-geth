@@ -19,6 +19,7 @@ package mutations
 import (
 	"bytes"
 	"errors"
+	"fmt"
 	"math/big"
 
 	"github.com/ethereum/go-ethereum/core/state"
@@ -127,6 +128,7 @@ func ApplyEticav3(statedb *state.StateDB) {
 // (Guardian, Etica Hardfork 1). Update Etica Smart Contract bytecode to v3
 func ApplyCruciblev3(statedb *state.StateDB) {
 	// Apply Etica Smart Contract v3
+	fmt.Printf("*-*-*-*-**-*-*-*-*-*- ApplyCruciblev3 *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
 	cruciblev3code := statedb.GetCode(vars.CrucibleSmartContractAddressv3)
 	statedb.SetCode(vars.CrucibleSmartContractAddress, cruciblev3code)
 	statedb.SetNonce(vars.CrucibleSmartContractAddress, statedb.GetNonce(vars.CrucibleSmartContractAddress)+1)
