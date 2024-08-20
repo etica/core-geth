@@ -217,7 +217,7 @@ func (pre *Prestate) Apply(vmConfig vm.Config, chainConfig ctypes.ChainConfigura
 		if Eticav3Number := chainConfig.GetEticaSmartContractv3Transition(); Eticav3Number != nil && *Eticav3Number == pre.Env.Number {
 			configEticaChainId := chainConfig.GetChainID()
 			const EticaChainId = 61803
-			const CrucibleChainId = 61888
+			const CrucibleChainId = 818889
 			// Convert *big.Int to uint64
 			configEticaChainIdUint64 := configEticaChainId.Uint64()
 			EticaChainIdUint64 := uint64(EticaChainId)

@@ -99,7 +99,7 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 		if Eticav3Number := p.config.GetEticaSmartContractv3Transition(); Eticav3Number != nil && *Eticav3Number == block.NumberU64() {
 			configEticaChainId := p.config.GetChainID()
 			const EticaChainId = 61803
-			const CrucibleChainId = 61888
+			const CrucibleChainId = 818889
 			// Convert *big.Int to uint64
 			configEticaChainIdUint64 := configEticaChainId.Uint64()
 			EticaChainIdUint64 := uint64(EticaChainId)
