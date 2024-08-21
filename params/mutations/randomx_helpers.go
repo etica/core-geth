@@ -163,12 +163,13 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 	// CHECKS SUBMITED TARGET IS INFERIOR TO SMART CONTRACT miningTarget | END
 
 	// Initialize RandomX system if needed
-	if globalRandomXCache == nil || globalRandomXVM == nil {
+	if globalRandomXCache == nil || globalRandomXVM == nil || !bytes.Equal(globalSeedHash, seedHash) {
 		fmt.Println("*1µ1µ1µ1µ1µ1µ1µ 1µ1µ1µ1µµ1µ1µ1µ1µ1µ - calling initRandomXSystem() because globalRandomXCache or globalRandomXVM is empty  1µ1µ1µ1µ1µ1µ1µ 1µ1µ1µ1µµ1µ1µ1µ1µ1µ")
 		if err := initRandomXSystem(FlagDefault, seedHash); err != nil {
 			fmt.Printf("Error in initRandomXSystem() initializing RandomX system: %v\n", err)
 			return nil // Return nil to continue processing other transactions
 		}
+		globalSeedHash = seedHash // Update the global seedHash
 	}
 
 	fmt.Println("Transaction is a mintrandomX call")

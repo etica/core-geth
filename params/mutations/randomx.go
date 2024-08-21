@@ -32,6 +32,7 @@ const (
 
 var globalRandomXCache unsafe.Pointer
 var globalRandomXVM unsafe.Pointer
+var globalSeedHash []byte
 
 // InitCache initializes a RandomX cache with the given seed
 func InitCache(cache unsafe.Pointer, seed []byte) {
