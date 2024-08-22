@@ -1229,7 +1229,7 @@ func (w *worker) prepareWork(genParams *generateParams) (*environment, error) {
 		if Eticav3Number := w.chainConfig.GetEticaSmartContractv3Transition(); Eticav3Number != nil && *Eticav3Number == header.Number.Uint64() {
 			configEticaChainId := w.chainConfig.GetChainID()
 			const EticaChainId = 61803
-			const CrucibleChainId = 818889
+			const CrucibleChainId = 61888
 			// Convert *big.Int to uint64
 			configEticaChainIdUint64 := configEticaChainId.Uint64()
 			EticaChainIdUint64 := uint64(EticaChainId)

@@ -89,7 +89,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 	// Determine which contract address to use based on the chainId START
 	if chainId == 61803 { // Etica mainnet
 		contractAddress = vars.EticaSmartContractAddress
-	} else if chainId == 818889 { // Crucible testnet
+	} else if chainId == 61888 { // Crucible testnet
 		contractAddress = vars.CrucibleSmartContractAddress
 	} else {
 		return fmt.Errorf("unsupported chain ID: %d", chainId)
@@ -97,7 +97,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 
 	fmt.Printf("------- µµµµ ---- µµµµ -- µµµµµ -- µµµµµ -----> contractAddress: %s\n", contractAddress)
 
-	if (chainId == 61803 && contractAddress != vars.EticaSmartContractAddress) || (chainId == 818889 && contractAddress != vars.CrucibleSmartContractAddress) {
+	if (chainId == 61803 && contractAddress != vars.EticaSmartContractAddress) || (chainId == 61888 && contractAddress != vars.CrucibleSmartContractAddress) {
 		fmt.Printf("wrong contractAddress for this chain ID contractAddress: %s\n", contractAddress)
 		return fmt.Errorf("wrong contractAddress for this chain ID: %d", chainId)
 	}

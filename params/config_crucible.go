@@ -25,8 +25,8 @@ import (
 var (
 	// CrucibleChainConfig is the chain parameters to run a node on the Etica main network.
 	CrucibleChainConfig = &coregeth.CoreGethChainConfig{
-		NetworkID: 818889,
-		ChainID:   big.NewInt(818889),
+		NetworkID: 61888,
+		ChainID:   big.NewInt(61888),
 		Ethash:    new(ctypes.EthashConfig),
 
 		//HomesteadBlock: big.NewInt(0),

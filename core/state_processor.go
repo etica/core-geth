@@ -99,7 +99,7 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 		if Eticav3Number := p.config.GetEticaSmartContractv3Transition(); Eticav3Number != nil && *Eticav3Number == block.NumberU64() {
 			configEticaChainId := p.config.GetChainID()
 			const EticaChainId = 61803
-			const CrucibleChainId = 818889
+			const CrucibleChainId = 61888
 			// Convert *big.Int to uint64
 			configEticaChainIdUint64 := configEticaChainId.Uint64()
 			EticaChainIdUint64 := uint64(EticaChainId)
@@ -222,7 +222,7 @@ func ApplyTransaction(config ctypes.ChainConfigurator, bc ChainContext, author *
 		configEticaChainId := config.GetChainID()
 		fmt.Printf("5µ5µµ5µ5µ5µ5µ --- >configEticaChainId (hex): %x\n", configEticaChainId)
 		const EticaChainId = 61803
-		const CrucibleChainId = 818889
+		const CrucibleChainId = 61888
 		// Convert *big.Int to uint64
 		configEticaChainIdUint64 := configEticaChainId.Uint64()
 		fmt.Printf("5µ5µµ5µ5µ5µ5µ --- > configEticaChainIdUint64 (decimal): %d\n", configEticaChainIdUint64)
