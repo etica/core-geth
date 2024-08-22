@@ -25,7 +25,7 @@ import (
 // Etica Mainnet Smart Contract //
 var EticaSmartContractAddress = common.HexToAddress("0x34c61EA91bAcdA647269d4e310A86b875c09946f") // Etica Mainnet Smart Contract Warning: dont forget to set it back to 0x34c61EA91bAcdA647269d4e310A86b875c09946f after tests
 // Crucible Testnet Smart Contract //
-var CrucibleSmartContractAddress = common.HexToAddress("0x37f6AFaEe5886Ae3eC5E6d9877f4C7f4DacFc8Ed") // Crucible address: 0x558593Bc92E6F242a604c615d93902fc98efcA82
+var CrucibleSmartContractAddress = common.HexToAddress("0x558593Bc92E6F242a604c615d93902fc98efcA82") // Crucible address: 0x558593Bc92E6F242a604c615d93902fc98efcA82
 
 // --------- Smart contract hardfork 1 ----------- //
 
@@ -48,7 +48,7 @@ var Eticav2ForkExtraRange = big.NewInt(10)
 
 // --------- main smart contract loads bytecode from following contract ----------- //
 var EticaSmartContractAddressv3 = common.HexToAddress("0x64cB3Bc8cF8324432838B5c58519F782482C9861") // Etica v3, Guardian Hardfork
-var CrucibleSmartContractAddressv3 = common.HexToAddress("0xDD2B0E3e29e7eF5D1AA9a7Cf290963463F38d3b8")
+var CrucibleSmartContractAddressv3 = common.HexToAddress("0xaD3827BA27333F81e905F882c16a905F371B0935")
 
 // Eticav3ForkBlockExtra is the block header extra-data field to set for the Eticav3 fork
 // point and a number of consecutive blocks to allow fast/light syncers to correctly
