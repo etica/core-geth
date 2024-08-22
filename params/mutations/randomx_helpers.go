@@ -158,7 +158,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 
 	// Compare claimedTarget with currentMiningTarget
 	if claimedTarget.Cmp(currentMiningTargetBigInt) > 0 {
-		return fmt.Errorf("claimedTarget (%s) is less than currentMiningTarget (%s)", claimedTarget.String(), currentMiningTargetBigInt.String())
+		return fmt.Errorf("claimedTarget (%s) is greater than currentMiningTarget (%s)", claimedTarget.String(), currentMiningTargetBigInt.String())
 	}
 	// CHECKS SUBMITED TARGET IS INFERIOR TO SMART CONTRACT miningTarget | END
 
