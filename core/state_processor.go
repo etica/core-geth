@@ -152,6 +152,41 @@ func applyTransaction(msg *Message, config ctypes.ChainConfigurator, gp *GasPool
 
 	fmt.Printf("*-*-*-* 9999999999999999999 -**-*-*-*-*-*- !!! --- applyTransaction CALLED --- !!! *-*-*-*-*-**-*-*99999999999999999999999999 -*-*-*-*-*-*-")
 
+	fmt.Printf("*-*-*-*-** 9999999999999999999 -*-*-*-*-*- applyTransaction FROM state_processor *-*-*-*-*-**-*-* 9999999999999999999 -*-*-*-*-*-*-")
+	fmt.Println("Info ------------- > applyTransaction CHECKING isEticaRandomXSupport < ---------------")
+
+	isEticaRandomXSupport := config.IsEnabled(config.GetEticaRandomXTransition, blockNumber)
+	if isEticaRandomXSupport {
+		fmt.Println("---- applyTransaction isEticaRandomXSupport passed")
+		fmt.Printf("*-*-*-*-**-*-*-*-*-*- calling VerifyEticaTransaction *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
+
+		configEticaChainId := config.GetChainID()
+		fmt.Printf("5µ5µµ5µ5µ5µ5µ --- >configEticaChainId (hex): %x\n", configEticaChainId)
+		const EticaChainId = 61803
+		const CrucibleChainId = 61888
+		// Convert *big.Int to uint64
+		configEticaChainIdUint64 := configEticaChainId.Uint64()
+		fmt.Printf("5µ5µµ5µ5µ5µ5µ --- > configEticaChainIdUint64 (decimal): %d\n", configEticaChainIdUint64)
+		EticaChainIdUint64 := uint64(EticaChainId)
+		CrucibleChainIdUint64 := uint64(CrucibleChainId)
+		if configEticaChainIdUint64 == EticaChainIdUint64 {
+			fmt.Printf("*-*-*-*-**-*-*-*-*-*- VerifyEticaTransaction WITH ETICA SMART CONTRACT ADDRESS *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
+			err := mutations.VerifyEticaTransaction(tx, statedb, EticaChainIdUint64)
+			if err != nil {
+				fmt.Println("Etica transaction verification failed", "err", err)
+				return nil, err
+			}
+		} else if configEticaChainIdUint64 == CrucibleChainIdUint64 {
+			fmt.Printf("*-*-*-*-**-*-*-*-*-*- VerifyEticaTransaction WITH CRUCIBLE SMART CONTRACT ADDRESS *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
+			err := mutations.VerifyEticaTransaction(tx, statedb, CrucibleChainIdUint64)
+			if err != nil {
+				fmt.Println("Etica transaction verification failed", "err", err)
+				return nil, err
+			}
+		}
+
+	}
+
 	// Create a new context to be used in the EVM environment.
 	txContext := NewEVMTxContext(msg)
 	evm.Reset(txContext, statedb)
@@ -211,45 +246,6 @@ func applyTransaction(msg *Message, config ctypes.ChainConfigurator, gp *GasPool
 // for the transaction, gas used and an error if the transaction failed,
 // indicating the block was invalid.
 func ApplyTransaction(config ctypes.ChainConfigurator, bc ChainContext, author *common.Address, gp *GasPool, statedb *state.StateDB, header *types.Header, tx *types.Transaction, usedGas *uint64, cfg vm.Config) (*types.Receipt, error) {
-
-	fmt.Printf("*-*-*-*-**-*-*-*-*-*- ApplyTransaction *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
-	fmt.Println("---- ApplyTransaction CHECKING !!! isEticaRandomXSupport")
-	fmt.Println("Info ------------- > ApplyTransaction CHECKING !! isEticaRandomXSupport < ---------------")
-
-	isEticaRandomXSupport := config.IsEnabled(config.GetEticaRandomXTransition, header.Number)
-	if isEticaRandomXSupport {
-		fmt.Println("---- ApplyTransaction isEticaRandomXSupport passed")
-		fmt.Println("Info ------------- > ApplyTransaction isEticaRandomXSupport passed < ---------------")
-		fmt.Println("Forced console output:", "---- ApplyTransaction isEticaRandomXSupport passed")
-
-		fmt.Printf("*-*-*-*-**-*-*-*-*-*- calling VerifyEticaTransaction *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
-
-		configEticaChainId := config.GetChainID()
-		fmt.Printf("5µ5µµ5µ5µ5µ5µ --- >configEticaChainId (hex): %x\n", configEticaChainId)
-		const EticaChainId = 61803
-		const CrucibleChainId = 61888
-		// Convert *big.Int to uint64
-		configEticaChainIdUint64 := configEticaChainId.Uint64()
-		fmt.Printf("5µ5µµ5µ5µ5µ5µ --- > configEticaChainIdUint64 (decimal): %d\n", configEticaChainIdUint64)
-		EticaChainIdUint64 := uint64(EticaChainId)
-		CrucibleChainIdUint64 := uint64(CrucibleChainId)
-		if configEticaChainIdUint64 == EticaChainIdUint64 {
-			fmt.Printf("*-*-*-*-**-*-*-*-*-*- VerifyEticaTransaction WITH ETICA SMART CONTRACT ADDRESS *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
-			err := mutations.VerifyEticaTransaction(tx, statedb, EticaChainIdUint64)
-			if err != nil {
-				fmt.Println("Etica transaction verification failed", "err", err)
-				return nil, err
-			}
-		} else if configEticaChainIdUint64 == CrucibleChainIdUint64 {
-			fmt.Printf("*-*-*-*-**-*-*-*-*-*- VerifyEticaTransaction WITH CRUCIBLE SMART CONTRACT ADDRESS *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
-			err := mutations.VerifyEticaTransaction(tx, statedb, CrucibleChainIdUint64)
-			if err != nil {
-				fmt.Println("Etica transaction verification failed", "err", err)
-				return nil, err
-			}
-		}
-
-	}
 
 	msg, err := TransactionToMessage(tx, types.MakeSigner(config, header.Number, header.Time), header.BaseFee)
 	if err != nil {
