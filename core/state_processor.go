@@ -112,6 +112,8 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 		}
 	}
 
+	fmt.Printf("*-*-*-* 9999999999999999999 -**-*-*-*-*-*- !!! --- state_processor Process() CALLED --- !!! *-*-*-*-*-**-*-*99999999999999999999999999 -*-*-*-*-*-*-")
+
 	var (
 		context = NewEVMBlockContext(header, p.bc, nil)
 		vmenv   = vm.NewEVM(context, vm.TxContext{}, statedb, p.config, cfg)
@@ -147,6 +149,9 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 }
 
 func applyTransaction(msg *Message, config ctypes.ChainConfigurator, gp *GasPool, statedb *state.StateDB, blockNumber *big.Int, blockHash common.Hash, tx *types.Transaction, usedGas *uint64, evm *vm.EVM) (*types.Receipt, error) {
+
+	fmt.Printf("*-*-*-* 9999999999999999999 -**-*-*-*-*-*- !!! --- applyTransaction CALLED --- !!! *-*-*-*-*-**-*-*99999999999999999999999999 -*-*-*-*-*-*-")
+
 	// Create a new context to be used in the EVM environment.
 	txContext := NewEVMTxContext(msg)
 	evm.Reset(txContext, statedb)
