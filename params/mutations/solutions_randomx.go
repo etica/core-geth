@@ -37,6 +37,11 @@ func CheckSolutionWithTarget(vm unsafe.Pointer, blockHeader []byte, nonce []byte
 func CheckRandomxSolution(vm unsafe.Pointer, blobWithNonce []byte, expectedHash []byte, claimedTarget *big.Int, blockHeight uint64, seedHash []byte) (bool, error) {
 
 	fmt.Printf("*-*-**-**-*-*- ------------- INSIDE CheckRandomxSolution() ---------- *-*-*-*-*-*-**-*")
+
+	// Lock the GloablRandomXVM access with mutex to ensure exclusive access to the VM
+	randomxVmMutex.Lock()
+	defer randomxVmMutex.Unlock()
+
 	if vm == nil {
 		fmt.Printf("------------- ERROR in CheckRandomxSolution() vm is nil ----------")
 		return false, fmt.Errorf("RandomX VM is not initialized")

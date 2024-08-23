@@ -10,6 +10,7 @@ package mutations
 import "C"
 
 import (
+	"sync"
 	"unsafe"
 )
 
@@ -33,6 +34,10 @@ const (
 var globalRandomXCache unsafe.Pointer
 var globalRandomXVM unsafe.Pointer
 var globalSeedHash []byte
+
+// Use Mutexes to make sure Global RandmoX VM and Cache are not used by multiple processes at the same time to avoid unexpected behaviour
+var randomxVmMutex sync.Mutex
+var randomxCacheMutex sync.Mutex
 
 // InitCache initializes a RandomX cache with the given seed
 func InitCache(cache unsafe.Pointer, seed []byte) {

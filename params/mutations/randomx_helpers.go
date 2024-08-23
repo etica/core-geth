@@ -21,6 +21,13 @@ const reservedOffset = 55
 func initRandomXSystem(flags RandomXFlags, seed []byte) error {
 
 	fmt.Printf("*999-*-*999*-**-*999*- ------------- INSIDE initRandomXSystem() ---------- *999-*-*999*-**-*999* *-*-*-*-*-*-**-*")
+
+	// Lock the global mutexes for the cache and VM
+	randomxCacheMutex.Lock()
+	defer randomxCacheMutex.Unlock()
+	randomxVmMutex.Lock()
+	defer randomxVmMutex.Unlock()
+
 	// Always destroy the VM and cache before reinitializing
 	if globalRandomXVM != nil {
 		fmt.Printf("*999-*-*999*-**-*999*- ----- globalRandomXVM empty calling -------- DestroyVM ---------- *999-*-*999*-**-*999* *-*-*-*-*-*-**-*")
