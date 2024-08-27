@@ -36,21 +36,17 @@ func CheckSolutionWithTarget(vm unsafe.Pointer, blockHeader []byte, nonce []byte
 
 func CheckRandomxSolution(vm unsafe.Pointer, blobWithNonce []byte, expectedHash []byte, claimedTarget *big.Int, blockHeight uint64, seedHash []byte) (bool, error) {
 
-	fmt.Printf("*-*-**-**-*-*- ------------- INSIDE CheckRandomxSolution() ---------- *-*-*-*-*-*-**-*")
-
 	// Lock the GloablRandomXVM access with mutex to ensure exclusive access to the VM
 	randomxVmMutex.Lock()
 	defer randomxVmMutex.Unlock()
 
 	if vm == nil {
-		fmt.Printf("------------- ERROR in CheckRandomxSolution() vm is nil ----------")
 		return false, fmt.Errorf("RandomX VM is not initialized")
 	}
 
 	calculatedHash, err := calculateRandomXHash(vm, blobWithNonce, seedHash)
 
 	if err != nil || calculatedHash == nil {
-		fmt.Printf("------------- ERROR in CheckRandomxSolution() calculatedHash failed ----------")
 		return false, err // Propagate the error if hash calculation fails
 	}
 
@@ -61,16 +57,6 @@ func CheckRandomxSolution(vm unsafe.Pointer, blobWithNonce []byte, expectedHash 
 	reversedHash := reverseBytes(calculatedHash)
 	// Convert calculated hash to big.Int
 	reversedHashInt := new(big.Int).SetBytes(reversedHash)
-
-	fmt.Printf("Calculated Hash: %x\n", calculatedHash)
-	fmt.Printf("Reversed Hash:   %x\n", reversedHash)
-	fmt.Printf("Expected Hash:   %x\n", expectedHash)
-	fmt.Printf("blobWithNonce:   %x\n", blobWithNonce)
-	fmt.Printf("seedHash:        %x\n", seedHash)
-
-	fmt.Printf("Target (hex):    %x\n", claimedTarget.Bytes())
-	fmt.Printf("Reversed Hash (decimal): %s\n", reversedHashInt.String())
-	fmt.Printf("Target (decimal):          %s\n", claimedTarget.String())
 
 	// Compare hash with target
 	comparisonResult := reversedHashInt.Cmp(claimedTarget)
@@ -93,24 +79,12 @@ func reverseBytes(data []byte) []byte {
 }
 
 func calculateRandomXHash(vm unsafe.Pointer, blobWithNonce, seedHash []byte) ([]byte, error) {
-	/*flags := FlagDefault
-	cache := InitRandomX(flags)
-	if cache == nil {
-		panic("Failed to allocate RandomX cache")
-	}
-	defer DestroyRandomX(cache)
 
-	InitCache(cache, seedHash)
-
-	vm := CreateVM(cache, flags) */
-	fmt.Printf("*-*-**-**-*-*- ------------- INSIDE calculateRandomXHash() ---------- *-*-*-*-*-*-**-*")
 	if vm == nil {
-		fmt.Printf("------------- ERROR in calculateRandomXHash() vm is nil ----------")
 		return nil, fmt.Errorf("RandomX VM is not initialized")
 	}
 
 	hash := CalculateHash(vm, blobWithNonce)
-	fmt.Printf("*-*-**-**-*-*- ------------- calculateRandomXHash() SUCCESS ---------- *-*-*-*-*-*-**-*")
 
 	return hash, nil
 }
