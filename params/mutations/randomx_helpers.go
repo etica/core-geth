@@ -424,10 +424,10 @@ func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce 
 	fmt.Printf("claimedTarget: %s\n", claimedTarget.String())
 	fmt.Printf("Packed bytes: 0x%x\n", packed) // Add this line to see the packed bytes
 	fmt.Printf("Solution Seal: %s\n", solutionSeal.Hex())
-	log.Info("New ETI RandomX mint",
-		"Challenge Number", challengeHex,
-		"Miner Address", miner.Hex(),
+	log.Info("Successfully verified new ETI RandomX block",
+		"challengeNumber", challengeHex,
+		"miner", miner.Hex(),
 		"senderNonceHash", senderNonceHash.Hex(),
-		"Solution Seal", solutionSeal.Hex(),
+		"solutionSeal", solutionSeal.Hex(),
 	)
 }
