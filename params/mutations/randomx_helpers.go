@@ -155,8 +155,6 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 	fmt.Printf("SeedHash: %v\n", seedHash)
 	fmt.Printf("currentChallenge: %v\n", currentChallenge)
 
-	blockHeight := uint64(3182000) // WARNING: use hardcoded value for tests need to implement get it from tx inputs
-
 	fmt.Println(" ****** Performing RandomX verification... ********")
 	fmt.Printf("randomxHash: %v\n", randomxHash)
 
@@ -186,7 +184,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 	copy(blobWithNonce[reservedOffset:], truncatedExtraNonceHash)
 
 	// valid, err := CheckSolution(vm, blockHeader, nonce, correctSolution, difficulty) -- > replaced by next line:
-	valid, err := CheckRandomxSolution(globalRandomXVM, blobWithNonce, randomxHash, claimedTarget, blockHeight, seedHash)
+	valid, err := CheckRandomxSolution(globalRandomXVM, blobWithNonce, randomxHash, claimedTarget, seedHash)
 
 	if err != nil {
 		return err

@@ -34,7 +34,7 @@ func CheckSolutionWithTarget(vm unsafe.Pointer, blockHeader []byte, nonce []byte
 	return true, nil
 }
 
-func CheckRandomxSolution(vm unsafe.Pointer, blobWithNonce []byte, expectedHash []byte, claimedTarget *big.Int, blockHeight uint64, seedHash []byte) (bool, error) {
+func CheckRandomxSolution(vm unsafe.Pointer, blobWithNonce []byte, expectedHash []byte, claimedTarget *big.Int, seedHash []byte) (bool, error) {
 
 	// Lock the GloablRandomXVM access with mutex to ensure exclusive access to the VM
 	randomxVmMutex.Lock()
