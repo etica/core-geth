@@ -21,8 +21,6 @@ const reservedOffset = 55
 
 func initRandomXSystem(flags RandomXFlags, seed []byte) error {
 
-	fmt.Printf("*999-*-*999*-**-*999*- ------------- INSIDE initRandomXSystem() ---------- *999-*-*999*-**-*999* *-*-*-*-*-*-**-*")
-
 	// Lock the global mutexes for the cache and VM
 	randomxCacheMutex.Lock()
 	defer randomxCacheMutex.Unlock()
@@ -31,12 +29,10 @@ func initRandomXSystem(flags RandomXFlags, seed []byte) error {
 
 	// Always destroy the VM and cache before reinitializing
 	if globalRandomXVM != nil {
-		fmt.Printf("*999-*-*999*-**-*999*- ----- globalRandomXVM empty calling -------- DestroyVM ---------- *999-*-*999*-**-*999* *-*-*-*-*-*-**-*")
 		DestroyVM(globalRandomXVM)
 		globalRandomXVM = nil
 	}
 	if globalRandomXCache != nil {
-		fmt.Printf("*999-*-*999*-**-*999*- ----- globalRandomXCache empty calling -------- DestroyRandomX ---------- *999-*-*999*-**-*999* *-*-*-*-*-*-**-*")
 		DestroyRandomX(globalRandomXCache)
 		globalRandomXCache = nil
 	}
@@ -44,18 +40,14 @@ func initRandomXSystem(flags RandomXFlags, seed []byte) error {
 	// Reinitialize cache and VM
 	globalRandomXCache = InitRandomX(flags)
 	if globalRandomXCache == nil {
-		log.Error("failed to allocate RandomX cache")
 		return fmt.Errorf("failed to allocate RandomX cache")
 	}
 	InitCache(globalRandomXCache, seed)
 
 	globalRandomXVM = CreateVM(globalRandomXCache, flags)
 	if globalRandomXVM == nil {
-		fmt.Printf("*999-*-*999*-**-*999*- ----- InitRandomX error failed to create RandomX VM --- *999-*-*999*-**-*999* *-*-*-*-*-*-**-*")
 		return fmt.Errorf("failed to create RandomX VM")
 	}
-
-	fmt.Printf("*-*-** 999999999 -**-*-*- ------------- initRandomXSystem() SUCCESS ---------- *-*-*-*999999999999 *-*-**-*")
 
 	return nil
 }
@@ -85,12 +77,12 @@ func CalculateDigest(challengeNumber string, sender common.Address, nonce *big.I
 }
 
 func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chainId uint64) error {
-	fmt.Printf("*-*-*-*-**-*-*-*-*-*-Verifying Etica transaction *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
-	fmt.Printf("Verifying Etica transaction: %s\n", tx.Hash().Hex())
-	txData := tx.Data()
-	txDataHex := hex.EncodeToString(txData)
-	fmt.Printf("Verifying Etica transaction data (hex): 0x%s\n", txDataHex)
-	fmt.Printf("Verifying Etica transaction data (raw): %v\n", txData)
+
+	//txData := tx.Data()
+	//txDataHex := hex.EncodeToString(txData)
+	//fmt.Printf("Verifying Etica transaction data (hex): 0x%s\n", txDataHex)
+	//fmt.Printf("Verifying Etica transaction data (raw): %v\n", txData)
+	//fmt.Printf("Verifying Etica transaction: %s\n", tx.Hash().Hex())
 
 	var contractAddress common.Address
 
@@ -103,66 +95,42 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 		return fmt.Errorf("unsupported chain ID: %d", chainId)
 	}
 
-	fmt.Printf("------- µµµµ ---- µµµµ -- µµµµµ -- µµµµµ -----> contractAddress: %s\n", contractAddress)
-
 	if (chainId == 61803 && contractAddress != vars.EticaSmartContractAddress) || (chainId == 61888 && contractAddress != vars.CrucibleSmartContractAddress) {
-		fmt.Printf("wrong contractAddress for this chain ID contractAddress: %s\n", contractAddress)
 		return fmt.Errorf("wrong contractAddress for this chain ID: %d", chainId)
 	}
 	// Determine which contract address to use based on the chainId END
 	// Now all checks are done, contractAddress is fully checked and contains the right smart contract address
 
-	fmt.Printf("------- µµµµ ---- µµµµ -- µµµµµ -- µµµµµ -----> EticaSmartContractAddress: %s\n", contractAddress)
 	if tx.To() == nil || *tx.To() != contractAddress {
-		fmt.Println("Transaction is not to Etica smart contract")
+		//Transaction is not to Etica smart contract
 		return nil
-	} else {
-		fmt.Println("Transaction is to Etica smart contract")
 	}
 
-	// Check if the transaction is calling the mintrandomX() function
+	// Transaction is to Etica smart contract
+
+	// Check if the transaction is a Etica Smart Contract calling the mintrandomX() function
 	if !IsSolutionProposal(tx.Data()) {
-		fmt.Println("Transaction is not a mintrandomX call")
+		// Transaction is not a Etica Smart Contract mintrandomX call
 		return nil
 	}
-
-	fmt.Println("Transaction is to Etica smart contract")
-
-	// Initialize RandomX (you might want to do this once and reuse it)
-	/* cache := InitRandomX(FlagDefault)
-	if cache == nil {
-		return fmt.Errorf("failed to initialize RandomX cache")
-	}
-	defer DestroyRandomX(cache)
-
-	vm := CreateVM(cache, FlagDefault)
-	if vm == nil {
-		return fmt.Errorf("failed to create RandomX")
-	}
-	defer DestroyVM(vm) */
 
 	nonce, blockHeader, currentChallenge, randomxHash, claimedTarget, seedHash, extraNonce, err := ExtractSolutionData(tx.Data())
 	if err != nil {
 		if err.Error() == "Invalid function selector" {
-			fmt.Println("Failed to Extract Solution Data, Invalid function selector")
 			return nil // Not an error, just not the transaction we're looking for
 		}
-		fmt.Printf("Error extracting solution data: %v\n", err)
+		//fmt.Printf("Error extracting solution data: %v\n", err)
+		log.Error("Error extracting solution data")
 		return err
 	}
 
 	// CHECKS SUBMITED TARGET IS INFERIOR TO SMART CONTRACT miningTarget | START
 	// verify claimedTarget is inferior to smart contract miningTarget to avoid contract storage spam:
 	miningTargetSlot := calculateMiningTargetSlot()
-	fmt.Printf("!!!!!! µµµµµµµµµµµµ !!!!!!!! µµµµµµµµµµµµµ Mining Target Slot: %s\n", miningTargetSlot.Hex())
 	currentMiningTarget := statedb.GetState(contractAddress, miningTargetSlot)
-	fmt.Printf("!!!!!! µµµµµµµµµµµµ !!!!!!!! µµµµµµµµµµµµµ currentMiningTarget (hex): %s\n", currentMiningTarget.Hex())
 
 	// Convert currentMiningTarget to *big.Int
 	currentMiningTargetBigInt := new(big.Int).SetBytes(currentMiningTarget.Bytes())
-
-	fmt.Printf("!!!!!! µµµµµµµµµµµµ !!!!!!!! µµµµµµµµµµµµµ currentMiningTargetBigInt (decimal): %s\n", currentMiningTargetBigInt.String())
-	fmt.Printf("!!!!!! µµµµµµµµµµµµ !!!!!!!! µµµµµµµµµµµµµ currentMiningTargetBigInt (hex): %x\n", currentMiningTargetBigInt)
 
 	// Compare claimedTarget with currentMiningTarget
 	if claimedTarget.Cmp(currentMiningTargetBigInt) > 0 {
@@ -172,20 +140,18 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 
 	// Initialize RandomX system if needed
 	if globalRandomXCache == nil || globalRandomXVM == nil || !bytes.Equal(globalSeedHash, seedHash) {
-		fmt.Println("*1µ1µ1µ1µ1µ1µ1µ 1µ1µ1µ1µµ1µ1µ1µ1µ1µ - calling initRandomXSystem() because globalRandomXCache or globalRandomXVM is empty  1µ1µ1µ1µ1µ1µ1µ 1µ1µ1µ1µµ1µ1µ1µ1µ1µ")
 		if err := initRandomXSystem(FlagDefault, seedHash); err != nil {
-			fmt.Printf("Error in initRandomXSystem() initializing RandomX system: %v\n", err)
-			return nil // Return nil to continue processing other transactions
+			return err // Returns Error initializing RandomX system
 		}
 		globalSeedHash = seedHash // Update the global seedHash
 	}
 
+	// Keep it for now, will remove these logs
 	fmt.Println("Transaction is a mintrandomX call")
 	fmt.Printf("Extracted block header: %x\n", blockHeader)
 	fmt.Printf("Extracted nonce: %x\n", nonce)
 	fmt.Printf("Extracted ExtraNonce: %x\n", nonce)
 	fmt.Printf("Extracted claimedTarget: %s\n", claimedTarget.String())
-
 	fmt.Printf("SeedHash: %v\n", seedHash)
 	fmt.Printf("currentChallenge: %v\n", currentChallenge)
 
@@ -213,36 +179,25 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 		common.LeftPadBytes(currentChallenge[:], 32),
 	)
 
-	fmt.Printf("*-*-**-*-**-*-**-*-**-*-*-*- extraNonceHash *-**-*-*-*-*-**-*-*-*-*-* : %s\n", extraNonceHash.Hex())
-
 	// Step 3: Truncate extraNonceHash to extraNonceSize
 	truncatedExtraNonceHash := extraNonceHash[:8]
 
-	fmt.Printf("*-*-**-*-**-*-**-*-**-*-*-*- truncatedExtraNonceHash *-**-*-*-*-*-**-*-*-*-*-* : %x\n", truncatedExtraNonceHash)
-
-	fmt.Printf("blobWithNonce BEFORE insert truncatedExtraNonceHash:   %x\n", blobWithNonce)
-
 	// Step 4: Insert the truncated extraNonceHash at reservedOffset (55 bytes)
 	copy(blobWithNonce[reservedOffset:], truncatedExtraNonceHash)
-
-	fmt.Printf("blobWithNonce AFTER insert truncatedExtraNonceHash:   %x\n", blobWithNonce)
 
 	// valid, err := CheckSolution(vm, blockHeader, nonce, correctSolution, difficulty) -- > replaced by next line:
 	valid, err := CheckRandomxSolution(globalRandomXVM, blobWithNonce, randomxHash, claimedTarget, blockHeight, seedHash)
 
 	if err != nil {
-		fmt.Printf("RandomX verification error: %v\n", err)
 		return err
 	}
 	if valid {
-		fmt.Println("RandomX verification passed")
 
 		// Update the RandomX state
 		updateRandomXState(statedb, currentChallenge, nonce, from, randomxHash, claimedTarget, seedHash, contractAddress)
 		// return something here to main process for success message
 
 	} else {
-		fmt.Println("RandomX verification failed")
 		return fmt.Errorf("invalid RandomX solution")
 	}
 
@@ -254,7 +209,6 @@ func IsSolutionProposal(data []byte) bool {
 		return false
 	}
 	functionSelector := data[:4]
-	fmt.Printf("Function selector: %s\n", hex.EncodeToString(functionSelector))
 	// Replace with actual selector for mintrandomX
 	expectedSelector := []byte{0x03, 0x7d, 0x2f, 0x35} // Actual selector for mintrandomX f0a9b55b
 	return bytes.Equal(functionSelector, expectedSelector)
@@ -297,7 +251,6 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, curren
 
 	// Extract extraNonce (8 bytes)
 	copy(extraNonce[:], data[196:204])
-	fmt.Printf("Extracted extraNonce: %x (hex) \n", extraNonce)
 
 	// Extract blockHeader (dynamic bytes)
 	blockHeaderStart := 4 + blockHeaderOffset
@@ -309,7 +262,6 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, curren
 	}
 	blockHeader = make([]byte, blockHeaderLength)
 	copy(blockHeader, data[blockHeaderStart:blockHeaderEnd])
-	fmt.Printf("Extracted blockHeader (length %d): %x\n", blockHeaderLength, blockHeader)
 
 	// Extract randomxHash (dynamic bytes)
 	randomxHashStart := 4 + randomxHashOffset
@@ -321,7 +273,6 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, curren
 	}
 	randomxHash = make([]byte, randomxHashLength)
 	copy(randomxHash, data[randomxHashStart:randomxHashEnd])
-	fmt.Printf("Extracted randomxHash (length %d): %x\n", randomxHashLength, randomxHash)
 
 	// Extract seedHash (dynamic bytes)
 	seedHashStart := 4 + seedHashOffset
@@ -333,7 +284,6 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, curren
 	}
 	seedHash = make([]byte, seedHashLength)
 	copy(seedHash, data[seedHashStart:seedHashEnd])
-	fmt.Printf("Extracted seedHash (length %d): %x\n", seedHashLength, seedHash)
 
 	return nonce, blockHeader, currentChallenge, randomxHash, claimedTarget, seedHash, extraNonce, nil
 }
@@ -375,22 +325,21 @@ func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce 
 	copy(sendernoncepacked[len(miner.Bytes()):], nonce[:])
 
 	senderNonceHash := crypto.Keccak256Hash(sendernoncepacked)
-	fmt.Printf("senderNonceHash: %s\n", senderNonceHash.Hex())
 
 	solutionSlot := calculateStorageSlot(challengeNumber, senderNonceHash)
-	fmt.Printf("solutionSlot: %s\n", solutionSlot)
 	existingSolution := statedb.GetState(contractAddress, solutionSlot)
-	fmt.Printf("existingSolution: %s\n", existingSolution)
+
+	challengeHex := "0x" + hex.EncodeToString(challengeNumber[:])
 
 	if existingSolution != (common.Hash{}) {
-		fmt.Println("randomxSealSolutions already exists, not updating")
+		log.Info("RandomX transaction already verified, not updating",
+			"challengeNumber", challengeHex,
+			"miner", miner.Hex(),
+			"senderNonceHash", senderNonceHash.Hex(),
+			"existingSolution", existingSolution.Hex(),
+		)
 		return
 	}
-
-	fmt.Printf("updateRandomXState nonce is: 0x%x\n", nonce)
-	fmt.Printf("updateRandomXState claimedTarget is: %s\n", claimedTarget)
-	fmt.Printf("updateRandomXState seedHash is: 0x%x\n", seedHash)
-	fmt.Printf("updateRandomXState randomxHash is: 0x%x\n", randomxHash)
 
 	// Pack nonce, claimedTarget, seedHash, and randomxHash
 	packed := make([]byte, 4+32+len(seedHash)+len(randomxHash))
@@ -399,31 +348,11 @@ func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce 
 	copy(packed[36:36+len(seedHash)], seedHash)
 	copy(packed[36+len(seedHash):], randomxHash)
 
-	// Log individual Keccak256 hashes
-	fmt.Printf("Keccak256(nonce): %x\n", crypto.Keccak256(nonce[:]))
-	fmt.Printf("Keccak256(claimedTarget): %x\n", crypto.Keccak256(claimedTarget.Bytes()))
-	fmt.Printf("Keccak256(seedHash): %x\n", crypto.Keccak256(seedHash))
-	fmt.Printf("Keccak256(randomxHash): %x\n", crypto.Keccak256(randomxHash))
-
 	// Calculate Keccak256 hash
 	solutionSeal := crypto.Keccak256Hash(packed)
-	fmt.Printf("Solution Seal: %s\n", solutionSeal.Hex())
-	fmt.Printf("Seed Hash: %x\n", seedHash)
-	fmt.Printf("Nonce: %s\n", nonce)
-	fmt.Printf("claimedTarget: %s\n", claimedTarget)
-	fmt.Printf("randomxHash: %x\n", randomxHash)
 
 	statedb.SetState(contractAddress, solutionSlot, common.BytesToHash(solutionSeal[:]))
 
-	fmt.Printf("Updated randomxSealSolutions:\n")
-	challengeHex := "0x" + hex.EncodeToString(challengeNumber[:])
-	fmt.Printf("Challenge Number: %s\n", challengeHex)
-	fmt.Printf("Challenge Number: %x\n", challengeNumber)
-	fmt.Printf("Miner Address: %s\n", miner.Hex())
-	fmt.Printf("Nonce: 0x%x\n", nonce)
-	fmt.Printf("claimedTarget: %s\n", claimedTarget.String())
-	fmt.Printf("Packed bytes: 0x%x\n", packed) // Add this line to see the packed bytes
-	fmt.Printf("Solution Seal: %s\n", solutionSeal.Hex())
 	log.Info("Successfully verified new ETI RandomX block",
 		"challengeNumber", challengeHex,
 		"miner", miner.Hex(),
