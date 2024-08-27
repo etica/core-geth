@@ -11,6 +11,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/state"
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params/vars"
 )
 
@@ -43,7 +44,7 @@ func initRandomXSystem(flags RandomXFlags, seed []byte) error {
 	// Reinitialize cache and VM
 	globalRandomXCache = InitRandomX(flags)
 	if globalRandomXCache == nil {
-		fmt.Printf("*999-*-*999*-**-*999*- ----- InitRandomX error failed to allocate RandomX cache --- *999-*-*999*-**-*999* *-*-*-*-*-*-**-*")
+		log.Error("failed to allocate RandomX cache")
 		return fmt.Errorf("failed to allocate RandomX cache")
 	}
 	InitCache(globalRandomXCache, seed)
@@ -423,4 +424,10 @@ func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce 
 	fmt.Printf("claimedTarget: %s\n", claimedTarget.String())
 	fmt.Printf("Packed bytes: 0x%x\n", packed) // Add this line to see the packed bytes
 	fmt.Printf("Solution Seal: %s\n", solutionSeal.Hex())
+	log.Info("New ETI RandomX mint",
+		"Challenge Number", challengeHex,
+		"Miner Address", miner.Hex(),
+		"senderNonceHash", senderNonceHash.Hex(),
+		"Solution Seal", solutionSeal.Hex(),
+	)
 }

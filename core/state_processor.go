@@ -26,6 +26,7 @@ import (
 	"github.com/ethereum/go-ethereum/core/types"
 	"github.com/ethereum/go-ethereum/core/vm"
 	"github.com/ethereum/go-ethereum/crypto"
+	"github.com/ethereum/go-ethereum/log"
 	"github.com/ethereum/go-ethereum/params/mutations"
 	"github.com/ethereum/go-ethereum/params/types/ctypes"
 	"github.com/ethereum/go-ethereum/params/vars"
@@ -173,15 +174,21 @@ func applyTransaction(msg *Message, config ctypes.ChainConfigurator, gp *GasPool
 			fmt.Printf("*-*-*-*-**-*-*-*-*-*- VerifyEticaTransaction WITH ETICA SMART CONTRACT ADDRESS *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
 			err := mutations.VerifyEticaTransaction(tx, statedb, EticaChainIdUint64)
 			if err != nil {
-				fmt.Println("Etica transaction verification failed", "err", err)
+				log.Error("Invalid RandomX transaction", err)
 				return nil, err
+				//don't return to let the full process run,
+				//transaction will be rejected by smart contract
+				// since VerifyEticaTransaction didn't update smart contract storage
 			}
 		} else if configEticaChainIdUint64 == CrucibleChainIdUint64 {
 			fmt.Printf("*-*-*-*-**-*-*-*-*-*- VerifyEticaTransaction WITH CRUCIBLE SMART CONTRACT ADDRESS *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
 			err := mutations.VerifyEticaTransaction(tx, statedb, CrucibleChainIdUint64)
 			if err != nil {
-				fmt.Println("Etica transaction verification failed", "err", err)
+				log.Error("Invalid RandomX transaction", err)
 				return nil, err
+				//don't return to let the full process run,
+				//transaction will be rejected by smart contract
+				// since VerifyEticaTransaction didn't update smart contract storage
 			}
 		}
 
