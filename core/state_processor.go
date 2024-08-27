@@ -163,7 +163,7 @@ func applyTransaction(msg *Message, config ctypes.ChainConfigurator, gp *GasPool
 			err := mutations.VerifyEticaTransaction(tx, statedb, EticaChainIdUint64)
 			if err != nil {
 				log.Warn("Invalid RandomX transaction", "error", err.Error()) // Use err.Error() to convert the error to a string
-				return nil, err
+				//return nil, err
 				//don't return to let the full process run,
 				//transaction will be rejected by smart contract
 				// since VerifyEticaTransaction didn't update smart contract storage
@@ -172,7 +172,7 @@ func applyTransaction(msg *Message, config ctypes.ChainConfigurator, gp *GasPool
 			err := mutations.VerifyEticaTransaction(tx, statedb, CrucibleChainIdUint64)
 			if err != nil {
 				log.Warn("Invalid RandomX transaction", "error", err.Error()) // Use err.Error() to convert the error to a string
-				return nil, err
+				//return nil, err
 				//don't return to let the full process run,
 				//transaction will be rejected by smart contract
 				// since VerifyEticaTransaction didn't update smart contract storage
