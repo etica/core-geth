@@ -114,7 +114,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 		return nil
 	}
 
-	nonce, blockHeader, currentChallenge, randomxHash, claimedTarget, seedHash, extraNonce, err := ExtractSolutionData(tx.Data())
+	nonce, blockHeader, challengeNumber, randomxHash, claimedTarget, seedHash, extraNonce, err := ExtractSolutionData(tx.Data())
 	if err != nil {
 		if err.Error() == "Invalid function selector" {
 			return nil // Not an error, just not the transaction we're looking for
@@ -138,6 +138,22 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 	}
 	// CHECKS SUBMITED TARGET IS INFERIOR TO SMART CONTRACT miningTarget | END
 
+	// CHECKS SUBMITED CHALLENGE NUMBER CORRESPONDS TO CURRENT SMART CONTRACT challengeNumber | START
+	// verify submited challengeNumber corresponds to smart contract challengeNumber to avoid contract storage spam:
+	// Check for empty values (should never happen thanks to txs inputs verifications):
+	submittedChallenge := challengeNumber[:]
+	if len(submittedChallenge) == 0 {
+		return fmt.Errorf("submitted challengeNumber is empty")
+	}
+	challengeNumberSlot := calculateChallengeNumberSlot()
+	currentChallengeNumber := statedb.GetState(contractAddress, challengeNumberSlot)
+	fmt.Printf("challengeNumber: %v\n", challengeNumber)
+	fmt.Printf("currentChallengeNumber: %v\n", currentChallengeNumber)
+	if !bytes.Equal(challengeNumber[:], currentChallengeNumber[:]) {
+		return fmt.Errorf("wrong challengeNumber: expected %x, got %x", currentChallengeNumber, challengeNumber)
+	}
+	// CHECKS SUBMITED CHALLENGE NUMBER CORRESPOND TO CURRENT SMART CONTRACT challengeNumber  | END
+
 	// Initialize RandomX system if needed
 	if globalRandomXCache == nil || globalRandomXVM == nil || !bytes.Equal(globalSeedHash, seedHash) {
 		if err := initRandomXSystem(FlagDefault, seedHash); err != nil {
@@ -153,7 +169,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 	//fmt.Printf("Extracted ExtraNonce: %x\n", nonce)
 	//fmt.Printf("Extracted claimedTarget: %s\n", claimedTarget.String())
 	//fmt.Printf("SeedHash: %v\n", seedHash)
-	//fmt.Printf("currentChallenge: %v\n", currentChallenge)
+	//fmt.Printf("challengeNumber: %v\n", challengeNumber)
 
 	//fmt.Println(" ****** Performing RandomX verification... ********")
 	//fmt.Printf("randomxHash: %v\n", randomxHash)
@@ -174,7 +190,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 	extraNonceHash := crypto.Keccak256Hash(
 		from.Bytes(),
 		common.LeftPadBytes(extraNonce[:], 8),
-		common.LeftPadBytes(currentChallenge[:], 32),
+		common.LeftPadBytes(challengeNumber[:], 32),
 	)
 
 	// Step 3: Truncate extraNonceHash to extraNonceSize
@@ -192,7 +208,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 	if valid {
 
 		// Update the RandomX state
-		updateRandomXState(statedb, currentChallenge, nonce, from, randomxHash, claimedTarget, seedHash, contractAddress)
+		updateRandomXState(statedb, challengeNumber, nonce, from, randomxHash, claimedTarget, seedHash, contractAddress)
 		// return something here to main process for success message
 
 	} else {
@@ -212,9 +228,9 @@ func IsSolutionProposal(data []byte) bool {
 	return bytes.Equal(functionSelector, expectedSelector)
 }
 
-func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, currentChallenge [32]byte, randomxHash []byte, claimedTarget *big.Int, seedHash []byte, extraNonce [8]byte, err error) {
+func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, challengeNumber [32]byte, randomxHash []byte, claimedTarget *big.Int, seedHash []byte, extraNonce [8]byte, err error) {
 	// Check if the data is long enough to contain all required fields
-	// 4 (selector) + 32 (nonce) + 80 (blockHeader) + 32 (currentChallenge) + 32 (randomxHash) + 32 (claimedTarget) + 32 (seedHash) + 8 (extraNonce) = 252 bytes
+	// 4 (selector) + 32 (nonce) + 80 (blockHeader) + 32 (challengeNumber) + 32 (randomxHash) + 32 (claimedTarget) + 32 (seedHash) + 8 (extraNonce) = 252 bytes
 	if len(data) < 252 {
 		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short to contain solution data")
 	}
@@ -233,9 +249,9 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, curren
 	// Extract blockHeader offset
 	blockHeaderOffset := new(big.Int).SetBytes(data[36:68]).Uint64()
 
-	// Extract currentChallenge (bytes32)
-	copy(currentChallenge[:], data[68:100])
-	fmt.Printf("Extracted currentChallenge: %x\n", currentChallenge)
+	// Extract challengeNumber (bytes32)
+	copy(challengeNumber[:], data[68:100])
+	fmt.Printf("Extracted challengeNumber: %x\n", challengeNumber)
 
 	// Extract randomxHash offset
 	randomxHashOffset := new(big.Int).SetBytes(data[100:132]).Uint64()
@@ -283,7 +299,7 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, curren
 	seedHash = make([]byte, seedHashLength)
 	copy(seedHash, data[seedHashStart:seedHashEnd])
 
-	return nonce, blockHeader, currentChallenge, randomxHash, claimedTarget, seedHash, extraNonce, nil
+	return nonce, blockHeader, challengeNumber, randomxHash, claimedTarget, seedHash, extraNonce, nil
 }
 
 func calculateStorageSlot(challengeNumber [32]byte, senderNonceHash common.Hash) common.Hash {
@@ -311,6 +327,17 @@ func calculateMiningTargetSlot() common.Hash {
 
 	// Left-pad the slot with zeroes to 32 bytes (256 bits)
 	slotBytes := common.LeftPadBytes(miningTargetSlot.Bytes(), 32)
+
+	// Return the storage slot as a common.Hash
+	return common.BytesToHash(slotBytes)
+}
+
+func calculateChallengeNumberSlot() common.Hash {
+	// The storage slot for challengeNumber is at position 18
+	challengeNumberSlot := big.NewInt(18)
+
+	// Left-pad the slot with zeroes to 32 bytes (256 bits)
+	slotBytes := common.LeftPadBytes(challengeNumberSlot.Bytes(), 32)
 
 	// Return the storage slot as a common.Hash
 	return common.BytesToHash(slotBytes)
