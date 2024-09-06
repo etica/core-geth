@@ -147,16 +147,16 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 	}
 
 	// Keep it for now, will remove these logs
-	fmt.Println("Transaction is a mintrandomX call")
-	fmt.Printf("Extracted block header: %x\n", blockHeader)
-	fmt.Printf("Extracted nonce: %x\n", nonce)
-	fmt.Printf("Extracted ExtraNonce: %x\n", nonce)
-	fmt.Printf("Extracted claimedTarget: %s\n", claimedTarget.String())
-	fmt.Printf("SeedHash: %v\n", seedHash)
-	fmt.Printf("currentChallenge: %v\n", currentChallenge)
+	//fmt.Println("Transaction is a mintrandomX call")
+	//fmt.Printf("Extracted block header: %x\n", blockHeader)
+	//fmt.Printf("Extracted nonce: %x\n", nonce)
+	//fmt.Printf("Extracted ExtraNonce: %x\n", nonce)
+	//fmt.Printf("Extracted claimedTarget: %s\n", claimedTarget.String())
+	//fmt.Printf("SeedHash: %v\n", seedHash)
+	//fmt.Printf("currentChallenge: %v\n", currentChallenge)
 
-	fmt.Println(" ****** Performing RandomX verification... ********")
-	fmt.Printf("randomxHash: %v\n", randomxHash)
+	//fmt.Println(" ****** Performing RandomX verification... ********")
+	//fmt.Printf("randomxHash: %v\n", randomxHash)
 
 	// Create a copy of the block header and insert the nonce at the correct offset
 	blobWithNonce := make([]byte, len(blockHeader))
