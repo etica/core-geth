@@ -141,18 +141,60 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 	// CHECKS SUBMITED CHALLENGE NUMBER CORRESPONDS TO CURRENT SMART CONTRACT challengeNumber | START
 	// verify submited challengeNumber corresponds to smart contract challengeNumber to avoid contract storage spam:
 	// Check for empty values (should never happen thanks to txs inputs verifications):
-	submittedChallenge := challengeNumber[:]
-	if len(submittedChallenge) == 0 {
+	if challengeNumber == [32]byte{} {
 		return fmt.Errorf("submitted challengeNumber is empty")
 	}
+
 	challengeNumberSlot := calculateChallengeNumberSlot()
 	currentChallengeNumber := statedb.GetState(contractAddress, challengeNumberSlot)
 	fmt.Printf("challengeNumber: %v\n", challengeNumber)
 	fmt.Printf("currentChallengeNumber: %v\n", currentChallengeNumber)
+
+	if currentChallengeNumber == (common.Hash{}) {
+		return fmt.Errorf("current challengeNumber from smart contract is empty")
+	}
+
 	if !bytes.Equal(challengeNumber[:], currentChallengeNumber[:]) {
 		return fmt.Errorf("wrong challengeNumber: expected %x, got %x", currentChallengeNumber, challengeNumber)
 	}
 	// CHECKS SUBMITED CHALLENGE NUMBER CORRESPOND TO CURRENT SMART CONTRACT challengeNumber  | END
+
+	// CHECKS SUBMITED BLOCKHEADER CORRESPONDS TO CURRENT SMART CONTRACT randomxBlob | START
+	// verify submited blockHeader corresponds to smart contract randomxBlob to avoid contract storage spam:
+	// Check for empty values (should never happen thanks to txs inputs verifications):
+	if blockHeader == nil || len(blockHeader) == 0 {
+		return fmt.Errorf("submitted blockHeader is nil or empty")
+	}
+
+	blockHeaderSlot := calculateBlockHeaderSlot()
+
+	// Get the length of the randomxBlob (should be 76)
+	randomxBlobLengthSlot := common.BigToHash(new(big.Int).Add(blockHeaderSlot.Big(), common.Big1))
+	randomxBlobLength := new(big.Int).SetBytes(statedb.GetState(contractAddress, randomxBlobLengthSlot).Bytes()).Uint64()
+
+	fmt.Printf("randomxBlobLength: %d\n", randomxBlobLength)
+
+	if randomxBlobLength != 76 {
+		return fmt.Errorf("unexpected randomxBlob length: got %d, want 76", randomxBlobLength)
+	}
+
+	// Retrieve the actual randomxBlob data
+	var currentBlockHeader []byte
+	for i := uint64(0); i < (randomxBlobLength+31)/32; i++ {
+		slot := common.BigToHash(new(big.Int).Add(blockHeaderSlot.Big(), big.NewInt(int64(i))))
+		currentBlockHeader = append(currentBlockHeader, statedb.GetState(contractAddress, slot).Bytes()...)
+	}
+	currentBlockHeader = currentBlockHeader[:randomxBlobLength]
+
+	fmt.Printf("blockHeader: %v\n", blockHeader)
+	fmt.Printf("currentBlockHeader: %v\n", currentBlockHeader)
+
+	// Now compare the retrieved currentBlockHeader with the submitted blockHeader
+	if !bytes.Equal(blockHeader, currentBlockHeader) {
+		return fmt.Errorf("wrong blockHeader: expected %x, got %x", currentBlockHeader, blockHeader)
+	}
+
+	// CHECKS SUBMITED BLOCKHEADER CORRESPONDS TO CURRENT SMART CONTRACT randomxBlob  | END
 
 	// Initialize RandomX system if needed
 	if globalRandomXCache == nil || globalRandomXVM == nil || !bytes.Equal(globalSeedHash, seedHash) {
@@ -338,6 +380,17 @@ func calculateChallengeNumberSlot() common.Hash {
 
 	// Left-pad the slot with zeroes to 32 bytes (256 bits)
 	slotBytes := common.LeftPadBytes(challengeNumberSlot.Bytes(), 32)
+
+	// Return the storage slot as a common.Hash
+	return common.BytesToHash(slotBytes)
+}
+
+func calculateBlockHeaderSlot() common.Hash {
+	// The storage slot for blockHeader is at position 71
+	blockHeaderSlot := big.NewInt(71)
+
+	// Left-pad the slot with zeroes to 32 bytes (256 bits)
+	slotBytes := common.LeftPadBytes(blockHeaderSlot.Bytes(), 32)
 
 	// Return the storage slot as a common.Hash
 	return common.BytesToHash(slotBytes)
