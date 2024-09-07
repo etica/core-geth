@@ -136,6 +136,14 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 
 	// check inputs types | START
 
+	fmt.Printf("--- --> nonce (hex): %x", nonce)
+	fmt.Printf("--- --> blockHeader (hex): %x", blockHeader)
+	fmt.Printf("--- --> challengeNumber (hex): %x", challengeNumber)
+	fmt.Printf("--- --> randomxHash (hex): %x", randomxHash)
+	fmt.Printf("--- --> claimedTarget: %s", claimedTarget.String())
+	fmt.Printf("--- --> seedHash (hex): %x", seedHash)
+	fmt.Printf("--- --> extraNonce (hex): %x", extraNonce)
+
 	// Check nonce (bytes4)
 	if len(nonce) != 4 {
 		return fmt.Errorf("invalid nonce length: expected 4 bytes, got %d bytes", len(nonce))
