@@ -136,14 +136,6 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 
 	// check inputs types | START
 
-	fmt.Printf("--- --> nonce (hex): %x", nonce)
-	fmt.Printf("--- --> blockHeader (hex): %x", blockHeader)
-	fmt.Printf("--- --> challengeNumber (hex): %x", challengeNumber)
-	fmt.Printf("--- --> randomxHash (hex): %x", randomxHash)
-	fmt.Printf("--- --> claimedTarget: %s", claimedTarget.String())
-	fmt.Printf("--- --> seedHash (hex): %x", seedHash)
-	fmt.Printf("--- --> extraNonce (hex): %x", extraNonce)
-
 	// Check nonce (bytes4)
 	if len(nonce) != 4 {
 		return fmt.Errorf("invalid nonce length: expected 4 bytes, got %d bytes", len(nonce))
@@ -219,8 +211,6 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 
 	challengeNumberSlot := calculateChallengeNumberSlot()
 	currentChallengeNumber := statedb.GetState(contractAddress, challengeNumberSlot)
-	fmt.Printf("challengeNumber: %v\n", challengeNumber)
-	fmt.Printf("currentChallengeNumber: %v\n", currentChallengeNumber)
 
 	if currentChallengeNumber == (common.Hash{}) {
 		return fmt.Errorf("current challengeNumber from smart contract is empty")
@@ -259,18 +249,6 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 		globalSeedHash = seedHash // Update the global seedHash
 	}
 
-	// Keep it for now, will remove these logs
-	//fmt.Println("Transaction is a mintrandomX call")
-	//fmt.Printf("Extracted block header: %x\n", blockHeader)
-	//fmt.Printf("Extracted nonce: %x\n", nonce)
-	//fmt.Printf("Extracted ExtraNonce: %x\n", nonce)
-	//fmt.Printf("Extracted claimedTarget: %s\n", claimedTarget.String())
-	//fmt.Printf("SeedHash: %v\n", seedHash)
-	//fmt.Printf("challengeNumber: %v\n", challengeNumber)
-
-	//fmt.Println(" ****** Performing RandomX verification... ********")
-	//fmt.Printf("randomxHash: %v\n", randomxHash)
-
 	// Create a copy of the block header and insert the nonce at the correct offset
 	blobWithNonce := make([]byte, len(blockHeader))
 	copy(blobWithNonce, blockHeader)
@@ -281,8 +259,6 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 	if err != nil {
 		return fmt.Errorf("failed to get transaction sender: %v", err)
 	}
-
-	fmt.Printf("Miner from: %x\n", from)
 
 	extraNonceHash := crypto.Keccak256Hash(
 		from.Bytes(),
@@ -347,7 +323,6 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, challe
 
 	// Extract nonce (4 bytes)
 	copy(nonce[:], data[4:8])
-	fmt.Printf("Extracted nonce: %x (hex) \n", nonce)
 
 	// Extract blockHeader offset
 	if len(data) < 68 {
@@ -360,7 +335,6 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, challe
 		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short for challengeNumber")
 	}
 	copy(challengeNumber[:], data[68:100])
-	fmt.Printf("Extracted challengeNumber: %x\n", challengeNumber)
 
 	// Extract randomxHash offset
 	// Extract randomxHash offset (Add bounds check)
@@ -374,7 +348,6 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, challe
 		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short for claimedTarget")
 	}
 	claimedTarget = new(big.Int).SetBytes(data[132:164])
-	fmt.Printf("Extracted claimedTarget: %d\n", claimedTarget)
 
 	// Extract seedHash offset
 	if len(data) < 196 {
@@ -556,7 +529,7 @@ func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce 
 
 	statedb.SetState(contractAddress, solutionSlot, common.BytesToHash(solutionSeal[:]))
 
-	log.Info("Successfully verified new ETI RandomX block",
+	log.Info("Successfully verified eti randomx nonce",
 		"challengeNumber", challengeHex,
 		"miner", miner.Hex(),
 		"senderNonceHash", senderNonceHash.Hex(),
