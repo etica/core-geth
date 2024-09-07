@@ -154,8 +154,8 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 		return fmt.Errorf("blockHeader is nil")
 	}
 
-	if len(blockHeader) != 76 {
-		return fmt.Errorf("invalid blockHeader length: expected 76 bytes, got %d bytes", len(blockHeader))
+	if len(blockHeader) != 80 {
+		return fmt.Errorf("invalid blockHeader length: expected 80 bytes, got %d bytes", len(blockHeader))
 	}
 
 	if len(challengeNumber) != 32 {
