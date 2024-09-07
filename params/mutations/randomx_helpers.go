@@ -84,6 +84,16 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 	//fmt.Printf("Verifying Etica transaction data (raw): %v\n", txData)
 	//fmt.Printf("Verifying Etica transaction: %s\n", tx.Hash().Hex())
 
+	// Check if tx is nil
+	if tx == nil {
+		return fmt.Errorf("transaction is nil")
+	}
+
+	// Check if statedb is nil
+	if statedb == nil {
+		return fmt.Errorf("statedb is nil")
+	}
+
 	var contractAddress common.Address
 
 	// Determine which contract address to use based on the chainId START
@@ -123,6 +133,60 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 		log.Error("Error extracting solution data")
 		return err
 	}
+
+	// check inputs types | START
+
+	// Check nonce (bytes4)
+	if len(nonce) != 4 {
+		return fmt.Errorf("invalid nonce length: expected 4 bytes, got %d bytes", len(nonce))
+	}
+
+	// Slices (add nil checks)
+	if blockHeader == nil {
+		return fmt.Errorf("blockHeader is nil")
+	}
+
+	if len(blockHeader) != 76 {
+		return fmt.Errorf("invalid blockHeader length: expected 76 bytes, got %d bytes", len(blockHeader))
+	}
+
+	if len(challengeNumber) != 32 {
+		return fmt.Errorf("invalid challengeNumber length: expected 32 bytes, got %d bytes", len(challengeNumber))
+	}
+
+	if randomxHash == nil {
+		return fmt.Errorf("randomxHash is nil")
+	}
+
+	if len(randomxHash) != 32 {
+		return fmt.Errorf("invalid randomxHash length: expected 32 bytes, got %d bytes", len(randomxHash))
+	}
+
+	// Check claimedTarget (uint)
+	if claimedTarget == nil {
+		return fmt.Errorf("claimedTarget is nil")
+	}
+	if claimedTarget.Sign() < 0 {
+		return fmt.Errorf("claimedTarget must be non-negative")
+	}
+
+	if claimedTarget.BitLen() > 256 {
+		return fmt.Errorf("claimedTarget exceeds maximum allowed value (256 bits)")
+	}
+
+	if seedHash == nil {
+		return fmt.Errorf("seedHash is nil")
+	}
+
+	if len(seedHash) != 32 {
+		return fmt.Errorf("invalid seedHash length: expected 32 bytes, got %d bytes", len(seedHash))
+	}
+
+	if len(extraNonce) != 8 {
+		return fmt.Errorf("invalid extraNonce length: expected 8 bytes, got %d bytes", len(extraNonce))
+	}
+
+	// check inputs types | END
 
 	// CHECKS SUBMITED TARGET IS INFERIOR TO SMART CONTRACT miningTarget | START
 	// verify claimedTarget is inferior to smart contract miningTarget to avoid contract storage spam:
@@ -254,6 +318,12 @@ func IsSolutionProposal(data []byte) bool {
 }
 
 func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, challengeNumber [32]byte, randomxHash []byte, claimedTarget *big.Int, seedHash []byte, extraNonce [8]byte, err error) {
+
+	// Check if data is nil
+	if data == nil {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Input data is nil")
+	}
+
 	// Check if the data is long enough to contain all required fields
 	// 4 (selector) + 32 (nonce) + 80 (blockHeader) + 32 (challengeNumber) + 32 (randomxHash) + 32 (claimedTarget) + 32 (seedHash) + 8 (extraNonce) = 252 bytes
 	if len(data) < 252 {
@@ -272,28 +342,64 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, challe
 	fmt.Printf("Extracted nonce: %x (hex) \n", nonce)
 
 	// Extract blockHeader offset
+	if len(data) < 68 {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short for blockHeader offset")
+	}
 	blockHeaderOffset := new(big.Int).SetBytes(data[36:68]).Uint64()
 
 	// Extract challengeNumber (bytes32)
+	if len(data) < 100 {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short for challengeNumber")
+	}
 	copy(challengeNumber[:], data[68:100])
 	fmt.Printf("Extracted challengeNumber: %x\n", challengeNumber)
 
 	// Extract randomxHash offset
+	// Extract randomxHash offset (Add bounds check)
+	if len(data) < 132 {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short for randomxHash offset")
+	}
 	randomxHashOffset := new(big.Int).SetBytes(data[100:132]).Uint64()
 
 	// Extract claimedTarget (uint256)
+	if len(data) < 164 {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short for claimedTarget")
+	}
 	claimedTarget = new(big.Int).SetBytes(data[132:164])
 	fmt.Printf("Extracted claimedTarget: %d\n", claimedTarget)
 
 	// Extract seedHash offset
+	if len(data) < 196 {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short for seedHash offset")
+	}
 	seedHashOffset := new(big.Int).SetBytes(data[164:196]).Uint64()
 
 	// Extract extraNonce (8 bytes)
+	if len(data) < 204 {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short for extraNonce")
+	}
 	copy(extraNonce[:], data[196:204])
 
+	// Extract dynamic fields
+	maxFieldSize := uint64(1024 * 1024) // 1MB max size for dynamic fields
+
 	// Extract blockHeader (dynamic bytes)
+	if blockHeaderOffset > uint64(len(data)) {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Invalid blockHeader offset")
+	}
 	blockHeaderStart := 4 + blockHeaderOffset
+	if blockHeaderStart+32 > uint64(len(data)) {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short for blockHeader length")
+	}
 	blockHeaderLength := new(big.Int).SetBytes(data[blockHeaderStart : blockHeaderStart+32]).Uint64()
+
+	if blockHeaderLength == 0 {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("blockHeader length cannot be zero")
+	}
+	if blockHeaderLength > maxFieldSize {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("blockHeader length exceeds maximum allowed size")
+	}
+
 	blockHeaderStart += 32
 	blockHeaderEnd := blockHeaderStart + blockHeaderLength
 	if blockHeaderEnd > uint64(len(data)) {
@@ -303,8 +409,22 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, challe
 	copy(blockHeader, data[blockHeaderStart:blockHeaderEnd])
 
 	// Extract randomxHash (dynamic bytes)
+	if randomxHashOffset > uint64(len(data)) {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Invalid randomxHash offset")
+	}
 	randomxHashStart := 4 + randomxHashOffset
+	if randomxHashStart+32 > uint64(len(data)) {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short for randomxHash length")
+	}
 	randomxHashLength := new(big.Int).SetBytes(data[randomxHashStart : randomxHashStart+32]).Uint64()
+
+	if randomxHashLength == 0 {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("randomxHash length cannot be zero")
+	}
+	if randomxHashLength > maxFieldSize {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("randomxHash length exceeds maximum allowed size")
+	}
+
 	randomxHashStart += 32
 	randomxHashEnd := randomxHashStart + randomxHashLength
 	if randomxHashEnd > uint64(len(data)) {
@@ -315,8 +435,22 @@ func ExtractSolutionData(data []byte) (nonce [4]byte, blockHeader []byte, challe
 
 	// Extract seedHash (dynamic bytes)
 	seedHashStart := 4 + seedHashOffset
+	if seedHashStart+32 > uint64(len(data)) {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short for seedHash length")
+	}
 	seedHashLength := new(big.Int).SetBytes(data[seedHashStart : seedHashStart+32]).Uint64()
+
+	if seedHashLength == 0 {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("seedHash length cannot be zero")
+	}
+	if seedHashLength > maxFieldSize {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("seedHash length exceeds maximum allowed size")
+	}
+
 	seedHashStart += 32
+	if seedHashStart+32 > uint64(len(data)) {
+		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Data too short for seedHash data")
+	}
 	seedHashEnd := seedHashStart + seedHashLength
 	if seedHashEnd > uint64(len(data)) {
 		return [4]byte{}, nil, [32]byte{}, nil, nil, nil, [8]byte{}, errors.New("Invalid seedHash length")
