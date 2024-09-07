@@ -103,8 +103,8 @@ var (
 
 		EticaSmartContractv2: big.NewInt(703_000), // Etica smart contract (Meticulous, Etica Hardfork 1)
 
-		EticaSmartContractv3: big.NewInt(1_862_600), // Etica smart contract (Guardian, Etica Hardfork 2) Warning: dont forget set to RandomX hardfork height
-		EticaRandomX:         big.NewInt(1_862_620), // Etica smart contract (Guardian, Etica Hardfork 2) [EticaRandomX needs EticaSmartContractv3] Warning: dont forget set to RandomX hardfork height
+		EticaSmartContractv3: big.NewInt(1_873_980), // Etica smart contract (Guardian, Etica Hardfork 2) Warning: dont forget set to RandomX hardfork height // to be put back: 1_862_600
+		EticaRandomX:         big.NewInt(1_873_990), // Etica smart contract (Guardian, Etica Hardfork 2) [EticaRandomX needs EticaSmartContractv3] Warning: dont forget set to RandomX hardfork height // tobe put back: 1_862_620
 
 	}
 )
