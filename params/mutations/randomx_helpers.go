@@ -169,8 +169,7 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 	blockHeaderSlot := calculateBlockHeaderSlot()
 
 	// Get the length of the randomxBlob (should be 76)
-	randomxBlobLengthSlot := common.BigToHash(new(big.Int).Add(blockHeaderSlot.Big(), common.Big1))
-	randomxBlobLength := new(big.Int).SetBytes(statedb.GetState(contractAddress, randomxBlobLengthSlot).Bytes()).Uint64()
+	randomxBlobLength := getRandomxBlobLength(statedb, contractAddress)
 
 	fmt.Printf("randomxBlobLength: %d\n", randomxBlobLength)
 
@@ -394,6 +393,12 @@ func calculateBlockHeaderSlot() common.Hash {
 
 	// Return the storage slot as a common.Hash
 	return common.BytesToHash(slotBytes)
+}
+
+func getRandomxBlobLength(statedb *state.StateDB, contractAddress common.Address) uint64 {
+	blockHeaderSlot := calculateBlockHeaderSlot()
+	lengthSlot := crypto.Keccak256Hash(blockHeaderSlot.Bytes())
+	return new(big.Int).SetBytes(statedb.GetState(contractAddress, lengthSlot).Bytes()).Uint64()
 }
 
 func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce [4]byte, miner common.Address, randomxHash []byte, claimedTarget *big.Int, seedHash []byte, contractAddress common.Address) {
