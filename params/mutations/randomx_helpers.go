@@ -166,31 +166,15 @@ func VerifyEticaTransaction(tx *types.Transaction, statedb *state.StateDB, chain
 		return fmt.Errorf("submitted blockHeader is nil or empty")
 	}
 
-	randomxBlobSlot := calculateRandomxBlobSlot()
-
-	// Get the length of the randomxBlob
-	randomxBlobLength := new(big.Int).SetBytes(statedb.GetState(contractAddress, randomxBlobSlot).Bytes()).Uint64()
-
-	fmt.Printf("randomxBlobLength: %d\n", randomxBlobLength)
-
-	if randomxBlobLength != 76 {
-		return fmt.Errorf("unexpected randomxBlob length: got %d, want 76", randomxBlobLength)
-	}
-
-	// Retrieve the actual randomxBlob data
-	var currentBlockHeader []byte
-	for i := uint64(0); i < (randomxBlobLength+31)/32; i++ {
-		slot := common.BigToHash(new(big.Int).Add(randomxBlobSlot.Big(), big.NewInt(int64(i))))
-		currentBlockHeader = append(currentBlockHeader, statedb.GetState(contractAddress, slot).Bytes()...)
-	}
-	currentBlockHeader = currentBlockHeader[:randomxBlobLength]
+	blockHeaderFirstPartSlot := calculateBlockHeaderFirstPartSlot()
+	currentBlockHeaderFirstPart := statedb.GetState(contractAddress, blockHeaderFirstPartSlot)
 
 	fmt.Printf("blockHeader: %v\n", blockHeader)
-	fmt.Printf("currentBlockHeader: %v\n", currentBlockHeader)
+	fmt.Printf("currentBlockHeaderFirstPart: %v\n", currentBlockHeaderFirstPart)
 
-	// Now compare the retrieved currentBlockHeader with the submitted blockHeader
-	if !bytes.Equal(blockHeader, currentBlockHeader) {
-		return fmt.Errorf("wrong blockHeader: expected %x, got %x", currentBlockHeader, blockHeader)
+	// Now compare the retrieved currentBlockHeaderFirstPart with the submitted blockHeader first 32bytes
+	if !bytes.Equal(blockHeader[:32], currentBlockHeaderFirstPart.Bytes()) {
+		return fmt.Errorf("wrong blockHeader: expected %x, got %x", currentBlockHeaderFirstPart.Bytes(), blockHeader)
 	}
 
 	// CHECKS SUBMITED BLOCKHEADER CORRESPONDS TO CURRENT SMART CONTRACT randomxBlob  | END
@@ -384,26 +368,15 @@ func calculateChallengeNumberSlot() common.Hash {
 	return common.BytesToHash(slotBytes)
 }
 
-func calculateBlockHeaderSlot() common.Hash {
-	// The storage slot for blockHeader is at position 71
-	blockHeaderSlot := big.NewInt(71)
+func calculateBlockHeaderFirstPartSlot() common.Hash {
+	// The storage slot for randomxBlobfirstpart is at position 74
+	randomxBlobfirstpartSlot := big.NewInt(74)
 
 	// Left-pad the slot with zeroes to 32 bytes (256 bits)
-	slotBytes := common.LeftPadBytes(blockHeaderSlot.Bytes(), 32)
+	slotBytes := common.LeftPadBytes(randomxBlobfirstpartSlot.Bytes(), 32)
 
 	// Return the storage slot as a common.Hash
 	return common.BytesToHash(slotBytes)
-}
-
-func calculateRandomxBlobSlot() common.Hash {
-	slot := big.NewInt(71)
-	return crypto.Keccak256Hash(common.LeftPadBytes(slot.Bytes(), 32))
-}
-
-func getRandomxBlobLength(statedb *state.StateDB, contractAddress common.Address) uint64 {
-	blockHeaderSlot := calculateBlockHeaderSlot()
-	lengthSlot := crypto.Keccak256Hash(blockHeaderSlot.Bytes())
-	return new(big.Int).SetBytes(statedb.GetState(contractAddress, lengthSlot).Bytes()).Uint64()
 }
 
 func updateRandomXState(statedb *state.StateDB, challengeNumber [32]byte, nonce [4]byte, miner common.Address, randomxHash []byte, claimedTarget *big.Int, seedHash []byte, contractAddress common.Address) {
