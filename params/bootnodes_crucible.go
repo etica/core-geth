@@ -17,9 +17,7 @@ package params
 
 // EticaBootnodes are the enode URLs of the P2P bootstrap nodes running on
 // the Etica network.
-var CrucibleBootnodes = []string{
-"enode://b20956879ebba0b1df9fab12c059cc905e61626d1d36e9c9109bc477ccc937d3c36d4daccb790fc41fbc86b94b80c723c56875e7d2cec4f32b0d04fc8a95f79d@173.212.202.226:30303",
-}
+var CrucibleBootnodes = []string{}
 
 var dnsPrefixCRUCIBLE = "enrtree://AJE62Q4DUX4QMMXEHCSSCSC65TDHZYSMONSD64P3WULVLSF6MRQ3K@" //not used set random value
 
