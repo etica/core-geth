@@ -100,9 +100,23 @@ func ValidateTransaction(tx *types.Transaction, head *types.Header, signer types
 		return core.ErrTipAboveFeeCap
 	}
 	// Make sure the transaction is signed properly
-	if _, err := types.Sender(signer, tx); err != nil {
+	from, err := types.Sender(signer, tx)
+
+	if err != nil {
 		return ErrInvalidSender
 	}
+
+	var isEticaSubset1Supported = opts.Config.IsEnabled(opts.Config.GetEticaSubset1Transition, head.Number)
+	fmt.Printf("------- Validation EticaSubset1Supported -------> : %v\n", isEticaSubset1Supported)
+	if isEticaSubset1Supported {
+		fmt.Printf("------- EticaSubset1Supported in VALIDATION confirmed-------")
+		if blacklisted := vars.BlacklistedAddressesSubset1[from]; blacklisted {
+			fmt.Printf("------- Transaction sender is blacklisted in VALIDATION-------")
+			return fmt.Errorf("%w: from %v", "transaction sender is blacklisted", blacklisted)
+		}
+
+	}
+
 	// Ensure the transaction has more gas than the bare minimum needed to cover
 	// the transaction metadata
 	intrGas, err := core.IntrinsicGas(tx.Data(), tx.AccessList(), tx.To() == nil, true, opts.Config.IsEnabled(opts.Config.GetEIP2028Transition, head.Number), opts.Config.IsEnabledByTime(opts.Config.GetEIP3860TransitionTime, &head.Time))

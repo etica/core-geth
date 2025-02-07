@@ -60,3 +60,11 @@ var Eticav3ForkBlockExtra = common.FromHex("0x677561726469616e2d686172642d666f72
 var Eticav3ForkExtraRange = big.NewInt(10)
 
 // --------- Etica smart contract hardfork 2 ----------- //
+
+// --------- Blacklisted addresses subsets ----------- //
+// BlacklistedAddress due to the Xeggex exchange exploit
+var BlacklistedAddressesSubset1 = map[common.Address]bool{
+	common.HexToAddress("0x85Bf2B3287BA24EB67FEa37f469Ca5f09A927CFd"): true,
+}
+
+// --------- Blacklisted addresses ----------- //

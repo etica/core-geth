@@ -1189,3 +1189,11 @@ func (g *Genesis) GetEticaRandomXTransition() *uint64 {
 func (g *Genesis) SetEticaRandomXTransition(n *uint64) error {
 	return g.Config.SetEticaRandomXTransition(n)
 }
+
+func (g *Genesis) GetEticaSubset1Transition() *uint64 {
+	return g.Config.GetEticaSubset1Transition()
+}
+
+func (g *Genesis) SetEticaSubset1Transition(n *uint64) error {
+	return g.Config.SetEticaSubset1Transition(n)
+}

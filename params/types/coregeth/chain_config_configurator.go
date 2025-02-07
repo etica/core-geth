@@ -1472,3 +1472,12 @@ func (c *CoreGethChainConfig) SetEticaRandomXTransition(n *uint64) error {
 	c.EticaRandomX = setBig(c.EticaRandomX, n)
 	return nil
 }
+
+func (c *CoreGethChainConfig) GetEticaSubset1Transition() *uint64 {
+	return bigNewU64(c.EticaSubset1)
+}
+
+func (c *CoreGethChainConfig) SetEticaSubset1Transition(n *uint64) error {
+	c.EticaSubset1 = setBig(c.EticaSubset1, n)
+	return nil
+}
