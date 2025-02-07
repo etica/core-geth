@@ -64,7 +64,7 @@ var Eticav3ForkExtraRange = big.NewInt(10)
 // --------- Eticav4 (Blacklisted addresses) ----------- //
 // BlacklistedAddresses due to the Xeggex exchange exploit
 var BlacklistedAddressesSubset1 = map[common.Address]bool{
-	common.HexToAddress("0x85Bf2B3287BA24EB67FEa37f469Ca5f09A927CFd"): true,
+	common.HexToAddress("0x769cAB9308A3b86f5006D667f30652C92E4d8558"): true,
 }
 
 // Eticav4ForkBlockExtra is the block header extra-data field to set for the Eticav4 fork
