@@ -387,6 +387,13 @@ func GenerateChain(config ctypes.ChainConfigurator, parent *types.Block, engine 
 			}
 		}
 
+		if eticav4Block := config.GetEticaSubset1Transition(); eticav4Block != nil {
+			eticav4limit := new(big.Int).Add(new(big.Int).SetUint64(*eticav4Block), vars.Eticav4ForkExtraRange)
+			if b.header.Number.Uint64() >= *eticav4Block && b.header.Number.Cmp(eticav4limit) < 0 {
+				b.header.Extra = common.CopyBytes(vars.Eticav4ForkBlockExtra)
+			}
+		}
+
 		// Execute any user modifications to the block
 		if gen != nil {
 			gen(i, b)

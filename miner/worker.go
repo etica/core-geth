@@ -1242,6 +1242,21 @@ func (w *worker) prepareWork(genParams *generateParams) (*environment, error) {
 		}
 	}
 
+	// override the extra-data for node to apply Eticav4 hard-fork at config block height
+	if eticav4BlockUint64 := w.chainConfig.GetEticaSubset1Transition(); eticav4BlockUint64 != nil {
+		eticav4Block := new(big.Int).SetUint64(*eticav4BlockUint64)
+		// Check whether the block is among the fork extra-override range
+		eticav4limit := new(big.Int).Add(eticav4Block, vars.Eticav4ForkExtraRange)
+		if header.Number.Cmp(eticav4Block) >= 0 && header.Number.Cmp(eticav4limit) < 0 {
+			// Depending whether we support or oppose the fork, override differently
+			if w.chainConfig.GetEticaSubset1Transition() != nil {
+				header.Extra = common.CopyBytes(vars.Eticav4ForkBlockExtra)
+			} else if bytes.Equal(header.Extra, vars.Eticav4ForkBlockExtra) {
+				header.Extra = []byte{} // If miner opposes, don't let it use the reserved extra-data
+			}
+		}
+	}
+
 	// Accumulate the uncles for the sealing work only if it's allowed.
 	if !genParams.noUncle {
 		commitUncles := func(blocks map[common.Hash]*types.Block) {

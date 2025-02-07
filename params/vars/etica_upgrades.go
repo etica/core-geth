@@ -27,7 +27,7 @@ var EticaSmartContractAddress = common.HexToAddress("0x34c61EA91bAcdA647269d4e31
 // Crucible Testnet Smart Contract //
 var CrucibleSmartContractAddress = common.HexToAddress("0x558593Bc92E6F242a604c615d93902fc98efcA82") // Crucible address: 0x558593Bc92E6F242a604c615d93902fc98efcA82
 
-// --------- Smart contract hardfork 1 ----------- //
+// --------- Eticav2 (smart contract hardfork 1) ----------- //
 
 // --------- main smart contract loads bytecode from following contract ----------- //
 var EticaSmartContractAddressv2 = common.HexToAddress("0x64cB3Bc8cF8324432838B5c58519F782482C9861") // Etica v2, Meticulous Hardfork
@@ -42,9 +42,9 @@ var Eticav2ForkBlockExtra = common.FromHex("0x657469636176322d686172642d666f726b
 // to override the extra-data in to prevent no-fork attacks.
 var Eticav2ForkExtraRange = big.NewInt(10)
 
-// --------- Etica smart contract hardfork 1 ----------- //
+// --------- Eticav2 (smart contract hardfork 1) ----------- //
 
-// --------- Smart contract hardfork 2 ----------- //
+// --------- Eticav3 (Etica smart contract hardfork 2) ----------- //
 
 // --------- main smart contract loads bytecode from following contract ----------- //
 var EticaSmartContractAddressv3 = common.HexToAddress("0xD0fFdAf3C0edb303Bb1Fe1a79a8153DA5c7AaABC")    // Etica v3, Guardian Hardfork
@@ -59,12 +59,21 @@ var Eticav3ForkBlockExtra = common.FromHex("0x677561726469616e2d686172642d666f72
 // to override the extra-data in to prevent no-fork attacks.
 var Eticav3ForkExtraRange = big.NewInt(10)
 
-// --------- Etica smart contract hardfork 2 ----------- //
+// --------- Eticav3 (Etica smart contract hardfork 2) ----------- //
 
-// --------- Blacklisted addresses subsets ----------- //
-// BlacklistedAddress due to the Xeggex exchange exploit
+// --------- Eticav4 (Blacklisted addresses) ----------- //
+// BlacklistedAddresses due to the Xeggex exchange exploit
 var BlacklistedAddressesSubset1 = map[common.Address]bool{
 	common.HexToAddress("0x85Bf2B3287BA24EB67FEa37f469Ca5f09A927CFd"): true,
 }
 
-// --------- Blacklisted addresses ----------- //
+// Eticav4ForkBlockExtra is the block header extra-data field to set for the Eticav4 fork
+// point and a number of consecutive blocks to allow fast/light syncers to correctly
+// pick the side they want.  0x7075727375616e63652d686172642d666f726b is hex representation of "pursuance-hard-fork".
+var Eticav4ForkBlockExtra = common.FromHex("0x7075727375616e63652d686172642d666f726b")
+
+// Eticav4ForkExtraRange is the number of consecutive blocks from the Eticav4 fork point
+// to override the extra-data in to prevent no-fork attacks.
+var Eticav4ForkExtraRange = big.NewInt(10)
+
+// --------- Eticav4 (Blacklisted addresses) ----------- //
