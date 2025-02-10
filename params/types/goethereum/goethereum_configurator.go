@@ -1296,12 +1296,12 @@ func (c *ChainConfig) SetEticaSubset1Transition(n *uint64) error {
 }
 
 /* This is how to update the blacklist subset
-func (c *ChainConfig) GetEticaBlacklistedAddressesSubset2Transition() *uint64 {
+func (c *ChainConfig) GetEticaSubset2Transition() *uint64 {
 	// Return the block number for the transition of subset 2
 	return bigNewU64(c.EticaSubset2)
 }
 
-func (c *ChainConfig) SetEticaBlacklistedAddressesSubset2Transition(n *uint64) error {
+func (c *ChainConfig) SetEticaSubset2Transition(n *uint64) error {
 	c.EticaSubset2 = setBig(c.EticaSubset2, n)
 	return nil
 }
