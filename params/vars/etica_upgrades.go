@@ -64,10 +64,10 @@ var Eticav3ForkExtraRange = big.NewInt(10)
 // --------- Eticav4 (Blacklisted addresses) ----------- //
 // BlacklistedAddresses due to the Xeggex exchange exploit
 var BlacklistedAddressesSubset1 = map[common.Address]bool{
-	common.HexToAddress("0x769cAB9308A3b86f5006D667f30652C92E4d8558"): true,
+	common.HexToAddress("0x5CcCcb6d334197c7C4ba94E7873d0ef11381CD4e"): true,
 }
 
-var EticaSmartContractAddressv4 = common.HexToAddress("0x34c61EA91bAcdA647269d4e310A86b875c09946f")    // Etica v4, Pursuance Hardfork
+var EticaSmartContractAddressv4 = common.HexToAddress("0xFa49C16EbebBd0B2C3Bb4Ef4897B7399D061bf8f")    // Etica v4, Pursuance Hardfork
 var CrucibleSmartContractAddressv4 = common.HexToAddress("0xd80f462CA0A641FF27e949af966585f407Fb50aa") // Etica v4, Pursuance Hardfork
 
 // Eticav4ForkBlockExtra is the block header extra-data field to set for the Eticav4 fork
