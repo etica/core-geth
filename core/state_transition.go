@@ -380,21 +380,11 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 		return nil, err
 	}
 
-	// Check if the sender is blacklisted
-	fmt.Printf("----------------------- Checking blacklist in STATE TRANSITION-----------------------\n")
-	fmt.Printf("Checking if the sender is blacklisted: sender=%s\n", st.msg.From.Hex())
-	fmt.Printf("Blacklisted addresses: %v\n", vars.BlacklistedAddressesSubset1)
-	fmt.Printf("Checking transaction: tx: %d\n", st.msg.Nonce)
-
 	// Check if the blacklisted address subset 1 is supported
 	var isEticaSubset1Supported = st.evm.ChainConfig().IsEnabled(st.evm.ChainConfig().GetEticaSubset1Transition, st.evm.Context.BlockNumber)
 
-	fmt.Printf("EticaSubset1Supported: %v\n", isEticaSubset1Supported)
 	if isEticaSubset1Supported {
-		fmt.Printf("EticaSubset1Supported confirmed\n")
 		if vars.BlacklistedAddressesSubset1[st.msg.From] {
-			fmt.Printf("Transaction sender is blacklisted: sender=%s\n", st.msg.From.Hex())
-			fmt.Printf("Transaction was blacklisted: tx: %d\n", st.msg.Nonce)
 			return nil, fmt.Errorf("%w: from %v", "transaction sender is blacklisted", st.msg.From.Hex())
 		}
 	}

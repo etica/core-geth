@@ -107,11 +107,8 @@ func ValidateTransaction(tx *types.Transaction, head *types.Header, signer types
 	}
 
 	var isEticaSubset1Supported = opts.Config.IsEnabled(opts.Config.GetEticaSubset1Transition, head.Number)
-	fmt.Printf("------- Validation EticaSubset1Supported -------> : %v\n", isEticaSubset1Supported)
 	if isEticaSubset1Supported {
-		fmt.Printf("------- EticaSubset1Supported in VALIDATION confirmed-------")
 		if blacklisted := vars.BlacklistedAddressesSubset1[from]; blacklisted {
-			fmt.Printf("------- Transaction sender is blacklisted in VALIDATION-------")
 			return fmt.Errorf("%w: from %v", "transaction sender is blacklisted", blacklisted)
 		}
 
