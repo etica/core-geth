@@ -113,6 +113,25 @@ func (p *StateProcessor) Process(block *types.Block, statedb *state.StateDB, cfg
 		}
 	}
 
+	// Handle Etica SmartContract v4 Hardfork
+	isEticaSmartContractv4Support := p.config.IsEnabled(p.config.GetEticaSubset1Transition, block.Number())
+	if isEticaSmartContractv4Support {
+		if Eticav4Number := p.config.GetEticaSubset1Transition(); Eticav4Number != nil && *Eticav4Number == block.NumberU64() {
+			configEticaChainId := p.config.GetChainID()
+			const EticaChainId = 61803
+			const CrucibleChainId = 61888
+			// Convert *big.Int to uint64
+			configEticaChainIdUint64 := configEticaChainId.Uint64()
+			EticaChainIdUint64 := uint64(EticaChainId)
+			CrucibleChainIdUint64 := uint64(CrucibleChainId)
+			if configEticaChainIdUint64 == EticaChainIdUint64 {
+				mutations.ApplyEticav4(statedb)
+			} else if configEticaChainIdUint64 == CrucibleChainIdUint64 {
+				mutations.ApplyCruciblev4(statedb)
+			}
+		}
+	}
+
 	var (
 		context = NewEVMBlockContext(header, p.bc, nil)
 		vmenv   = vm.NewEVM(context, vm.TxContext{}, statedb, p.config, cfg)

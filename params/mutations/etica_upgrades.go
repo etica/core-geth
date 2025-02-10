@@ -168,3 +168,20 @@ func VerifyEticav4HeaderExtraData(config ctypes.ChainConfigurator, header *types
 	}
 	return nil
 }
+
+// (Pursuance, Etica Hardfork 3). Update Etica Smart Contract bytecode to v4
+func ApplyEticav4(statedb *state.StateDB) {
+	// Apply Etica Smart Contract v4
+	eticav4code := statedb.GetCode(vars.EticaSmartContractAddressv4)
+	statedb.SetCode(vars.EticaSmartContractAddress, eticav4code)
+	statedb.SetNonce(vars.EticaSmartContractAddress, statedb.GetNonce(vars.EticaSmartContractAddress)+1)
+}
+
+// (Pursuance, Etica Hardfork 3). Update Etica Smart Contract bytecode to v4
+func ApplyCruciblev4(statedb *state.StateDB) {
+	// Apply Etica Smart Contract v4
+	fmt.Printf("*-*-*-*-**-*-*-*-*-*- ApplyCruciblev4 *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
+	cruciblev4code := statedb.GetCode(vars.CrucibleSmartContractAddressv4)
+	statedb.SetCode(vars.CrucibleSmartContractAddress, cruciblev4code)
+	statedb.SetNonce(vars.CrucibleSmartContractAddress, statedb.GetNonce(vars.CrucibleSmartContractAddress)+1)
+}

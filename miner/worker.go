@@ -1257,6 +1257,25 @@ func (w *worker) prepareWork(genParams *generateParams) (*environment, error) {
 		}
 	}
 
+	// Handle Etica SmartContract v4 Hardfork
+	isEticaSmartContractv4Support := w.chainConfig.IsEnabled(w.chainConfig.GetEticaSubset1Transition, header.Number)
+	if isEticaSmartContractv4Support {
+		if Eticav4Number := w.chainConfig.GetEticaSubset1Transition(); Eticav4Number != nil && *Eticav4Number == header.Number.Uint64() {
+			configEticaChainId := w.chainConfig.GetChainID()
+			const EticaChainId = 61803
+			const CrucibleChainId = 61888
+			// Convert *big.Int to uint64
+			configEticaChainIdUint64 := configEticaChainId.Uint64()
+			EticaChainIdUint64 := uint64(EticaChainId)
+			CrucibleChainIdUint64 := uint64(CrucibleChainId)
+			if configEticaChainIdUint64 == EticaChainIdUint64 {
+				mutations.ApplyEticav4(env.state)
+			} else if configEticaChainIdUint64 == CrucibleChainIdUint64 {
+				mutations.ApplyCruciblev4(env.state)
+			}
+		}
+	}
+
 	// Accumulate the uncles for the sealing work only if it's allowed.
 	if !genParams.noUncle {
 		commitUncles := func(blocks map[common.Hash]*types.Block) {

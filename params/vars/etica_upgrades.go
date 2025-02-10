@@ -67,6 +67,9 @@ var BlacklistedAddressesSubset1 = map[common.Address]bool{
 	common.HexToAddress("0x769cAB9308A3b86f5006D667f30652C92E4d8558"): true,
 }
 
+var EticaSmartContractAddressv4 = common.HexToAddress("0x34c61EA91bAcdA647269d4e310A86b875c09946f")    // Etica v4, Pursuance Hardfork
+var CrucibleSmartContractAddressv4 = common.HexToAddress("0x558593Bc92E6F242a604c615d93902fc98efcA82") // Etica v4, Pursuance Hardfork
+
 // Eticav4ForkBlockExtra is the block header extra-data field to set for the Eticav4 fork
 // point and a number of consecutive blocks to allow fast/light syncers to correctly
 // pick the side they want.  0x7075727375616e63652d686172642d666f726b is hex representation of "pursuance-hard-fork".
