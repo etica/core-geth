@@ -382,8 +382,9 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 
 	// Check if the blacklisted address subset 1 is supported
 	var isEticaSubset1Supported = st.evm.ChainConfig().IsEnabled(st.evm.ChainConfig().GetEticaSubset1Transition, st.evm.Context.BlockNumber)
-
-	if isEticaSubset1Supported {
+	var isEticaSmartContractv5Support = st.evm.ChainConfig().IsEnabled(st.evm.ChainConfig().GetEticaSmartContractv5Transition, st.evm.Context.BlockNumber)
+	// Etica v5 removed the blacklisted addresses subset 1 introduced in v4 emergency hardfork
+	if !isEticaSmartContractv5Support && isEticaSubset1Supported {
 		if vars.BlacklistedAddressesSubset1[st.msg.From] {
 			return nil, fmt.Errorf("%w: from %v", "transaction sender is blacklisted", st.msg.From.Hex())
 		}

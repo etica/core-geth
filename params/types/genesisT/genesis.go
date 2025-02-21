@@ -1197,3 +1197,11 @@ func (g *Genesis) GetEticaSubset1Transition() *uint64 {
 func (g *Genesis) SetEticaSubset1Transition(n *uint64) error {
 	return g.Config.SetEticaSubset1Transition(n)
 }
+
+func (g *Genesis) GetEticaSmartContractv5Transition() *uint64 {
+	return g.Config.GetEticaSmartContractv5Transition()
+}
+
+func (g *Genesis) SetEticaSmartContractv5Transition(n *uint64) error {
+	return g.Config.SetEticaSmartContractv5Transition(n)
+}

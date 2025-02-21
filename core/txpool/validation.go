@@ -107,11 +107,11 @@ func ValidateTransaction(tx *types.Transaction, head *types.Header, signer types
 	}
 
 	var isEticaSubset1Supported = opts.Config.IsEnabled(opts.Config.GetEticaSubset1Transition, head.Number)
-	if isEticaSubset1Supported {
+	var isEticaSmartContractv5Support = opts.Config.IsEnabled(opts.Config.GetEticaSmartContractv5Transition, head.Number)
+	if !isEticaSmartContractv5Support && isEticaSubset1Supported {
 		if blacklisted := vars.BlacklistedAddressesSubset1[from]; blacklisted {
 			return fmt.Errorf("%w: from %v", "transaction sender is blacklisted", blacklisted)
 		}
-
 	}
 
 	// Ensure the transaction has more gas than the bare minimum needed to cover

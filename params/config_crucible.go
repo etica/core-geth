@@ -108,5 +108,7 @@ var (
 
 		EticaSubset1: big.NewInt(2_894_950), // Safeguarded addresses (Pursuance Hardfork, Etica Hardfork 3)
 
+		EticaSmartContractv5: big.NewInt(2_971_850), // Etica smart contract (Aegis, Etica Hardfork 4)
+
 	}
 )

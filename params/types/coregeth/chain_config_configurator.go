@@ -1481,3 +1481,12 @@ func (c *CoreGethChainConfig) SetEticaSubset1Transition(n *uint64) error {
 	c.EticaSubset1 = setBig(c.EticaSubset1, n)
 	return nil
 }
+
+func (c *CoreGethChainConfig) GetEticaSmartContractv5Transition() *uint64 {
+	return bigNewU64(c.EticaSmartContractv5)
+}
+
+func (c *CoreGethChainConfig) SetEticaSmartContractv5Transition(n *uint64) error {
+	c.EticaSmartContractv5 = setBig(c.EticaSmartContractv5, n)
+	return nil
+}
