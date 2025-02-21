@@ -64,7 +64,7 @@ var Eticav3ForkExtraRange = big.NewInt(10)
 // --------- Eticav4 (Blacklisted addresses) ----------- //
 // BlacklistedAddresses due to the Xeggex exchange exploit
 var BlacklistedAddressesSubset1 = map[common.Address]bool{
-	common.HexToAddress("0x5CcCcb6d334197c7C4ba94E7873d0ef11381CD4e"): true,
+	common.HexToAddress("0x769cAB9308A3b86f5006D667f30652C92E4d8558"): true,
 }
 
 var EticaSmartContractAddressv4 = common.HexToAddress("0xFa49C16EbebBd0B2C3Bb4Ef4897B7399D061bf8f")    // Etica v4, Pursuance Hardfork
