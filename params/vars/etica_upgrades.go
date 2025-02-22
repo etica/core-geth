@@ -68,7 +68,7 @@ var BlacklistedAddressesSubset1 = map[common.Address]bool{
 }
 
 var EticaSmartContractAddressv4 = common.HexToAddress("0xFa49C16EbebBd0B2C3Bb4Ef4897B7399D061bf8f")    // Etica v4, Pursuance Hardfork
-var CrucibleSmartContractAddressv4 = common.HexToAddress("0xd80f462CA0A641FF27e949af966585f407Fb50aa") // Etica v4, Pursuance Hardfork
+var CrucibleSmartContractAddressv4 = common.HexToAddress("0xa037fb5d328Aa8B0C01bA9DFc18D63164DEDDb51") // Etica v4, Pursuance Hardfork
 
 // Eticav4ForkBlockExtra is the block header extra-data field to set for the Eticav4 fork
 // point and a number of consecutive blocks to allow fast/light syncers to correctly
@@ -85,7 +85,7 @@ var Eticav4ForkExtraRange = big.NewInt(10)
 
 // --------- main smart contract loads bytecode from following contract ----------- //
 var EticaSmartContractAddressv5 = common.HexToAddress("0xc537E70E225EB99bC9ec36fEfB214105B23E47A8")    // Etica v5, Aegis Hardfork
-var CrucibleSmartContractAddressv5 = common.HexToAddress("0xb92F528B8aECAc1FC069cB2Ea55D4b78357F4F9F") // Etica v5, Aegis Hardfork
+var CrucibleSmartContractAddressv5 = common.HexToAddress("0xA0f8507483bd6e9282360C938c014035E0f79Cf4") // Etica v5, Aegis Hardfork
 
 // Eticav5ForkBlockExtra is the block header extra-data field to set for the Eticav5 fork
 // point and a number of consecutive blocks to allow fast/light syncers to correctly
