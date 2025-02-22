@@ -84,7 +84,7 @@ var Eticav4ForkExtraRange = big.NewInt(10)
 // --------- Eticav5 (Etica smart contract hardfork 4) ----------- //
 
 // --------- main smart contract loads bytecode from following contract ----------- //
-var EticaSmartContractAddressv5 = common.HexToAddress("0xFa49C16EbebBd0B2C3Bb4Ef4897B7399D061bf8f")    // Etica v5, Aegis Hardfork
+var EticaSmartContractAddressv5 = common.HexToAddress("0xc537E70E225EB99bC9ec36fEfB214105B23E47A8")    // Etica v5, Aegis Hardfork
 var CrucibleSmartContractAddressv5 = common.HexToAddress("0xb92F528B8aECAc1FC069cB2Ea55D4b78357F4F9F") // Etica v5, Aegis Hardfork
 
 // Eticav5ForkBlockExtra is the block header extra-data field to set for the Eticav5 fork

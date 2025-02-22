@@ -107,5 +107,8 @@ var (
 		EticaRandomX:         big.NewInt(5_914_080), // Etica smart contract (Guardian, Etica Hardfork 2) [EticaRandomX needs EticaSmartContractv3] Warning: dont forget set to RandomX hardfork height
 
 		EticaSubset1: big.NewInt(6_905_600), // Safeguarded addresses (Pursuance Hardfork, Etica Hardfork 3)
+
+		EticaSmartContractv5: big.NewInt(7_004_300), // Etica smart contract (Aegis, Etica Hardfork 4)
+
 	}
 )
