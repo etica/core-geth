@@ -106,8 +106,8 @@ var BlacklistedAddressesSubset2 = map[common.Address]bool{
 }
 
 // --------- main smart contract loads bytecode from following contract ----------- //
-var EticaSmartContractAddressv6 = common.HexToAddress("0x3C5AC3bd362542b2cB209a06f3E0Ec573a109B74")    // Etica v6, Themis Hardfork
-var CrucibleSmartContractAddressv6 = common.HexToAddress("0xA0f8507483bd6e9282360C938c014035E0f79Cf4") // Etica v6, Themis Hardfork
+var EticaSmartContractAddressv6 = common.HexToAddress("0xc537E70E225EB99bC9ec36fEfB214105B23E47A8")    // Etica v6, Themis Hardfork
+var CrucibleSmartContractAddressv6 = common.HexToAddress("0x3C5AC3bd362542b2cB209a06f3E0Ec573a109B74") // Etica v6, Themis Hardfork
 
 // Eticav6ForkBlockExtra is the block header extra-data field to set for the Eticav6 fork
 // point and a number of consecutive blocks to allow fast/light syncers to correctly
