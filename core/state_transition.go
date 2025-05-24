@@ -390,6 +390,14 @@ func (st *StateTransition) TransitionDb() (*ExecutionResult, error) {
 		}
 	}
 
+	// Check if the blacklisted address subset 2 is supported
+	var isEticaSmartContractv6Support = st.evm.ChainConfig().IsEnabled(st.evm.ChainConfig().GetEticaSmartContractv6Transition, st.evm.Context.BlockNumber)
+	if isEticaSmartContractv6Support {
+		if vars.BlacklistedAddressesSubset2[st.msg.From] {
+			return nil, fmt.Errorf("%w: from %v", "transaction sender is blacklisted", st.msg.From.Hex())
+		}
+	}
+
 	if tracer := st.evm.Config.Tracer; tracer != nil {
 		tracer.CaptureTxStart(st.initialGas)
 		defer func() {

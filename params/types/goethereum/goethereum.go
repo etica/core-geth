@@ -112,6 +112,8 @@ type ChainConfig struct {
 	EticaSubset1 *big.Int `json:"EticaSubset1,omitempty"`
 
 	EticaSmartContractv5 *big.Int `json:"EticaSmartContractv5,omitempty"`
+
+	EticaSmartContractv6 *big.Int `json:"EticaSmartContractv6,omitempty"`
 }
 
 // networkNames are user friendly names to use in the chain spec banner.

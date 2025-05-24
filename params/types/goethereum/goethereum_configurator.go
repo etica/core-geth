@@ -1303,3 +1303,12 @@ func (c *ChainConfig) SetEticaSmartContractv5Transition(n *uint64) error {
 	c.EticaSmartContractv5 = setBig(c.EticaSmartContractv5, n)
 	return nil
 }
+
+func (c *ChainConfig) GetEticaSmartContractv6Transition() *uint64 {
+	return bigNewU64(c.EticaSmartContractv6)
+}
+
+func (c *ChainConfig) SetEticaSmartContractv6Transition(n *uint64) error {
+	c.EticaSmartContractv6 = setBig(c.EticaSmartContractv6, n)
+	return nil
+}

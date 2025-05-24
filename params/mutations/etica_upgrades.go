@@ -61,6 +61,14 @@ var (
 	// ErrBadNoEticav5Extra is returned if a header does support the Eticav5 fork on a no-
 	// fork client.
 	ErrBadNoEticav5Extra = errors.New("bad Eticav5 no-fork extra-data")
+
+	// ErrBadProEticav6Extra is returned if a header doesn't support the Eticav6 fork on a
+	// pro-fork client.
+	ErrBadProEticav6Extra = errors.New("bad Eticav6 pro-fork extra-data")
+
+	// ErrBadNoEticav6Extra is returned if a header does support the Eticav6 fork on a no-
+	// fork client.
+	ErrBadNoEticav6Extra = errors.New("bad Eticav6 no-fork extra-data")
 )
 
 // VerifyEticav2HeaderExtraData validates the extra-data field of a block header to
@@ -235,5 +243,49 @@ func ApplyCruciblev5(statedb *state.StateDB) {
 	fmt.Printf("*-*-*-*-**-*-*-*-*-*- ApplyCruciblev5 *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
 	cruciblev5code := statedb.GetCode(vars.CrucibleSmartContractAddressv5)
 	statedb.SetCode(vars.CrucibleSmartContractAddress, cruciblev5code)
+	statedb.SetNonce(vars.CrucibleSmartContractAddress, statedb.GetNonce(vars.CrucibleSmartContractAddress)+1)
+}
+
+// VerifyEticav6HeaderExtraData validates the extra-data field of a block header to
+// ensure it conforms to Eticav6 hard-fork rules.
+//
+// Eticav6 hard-fork extension to the header validity:
+//
+//   - if the node is no-fork, do not accept blocks in the [fork, fork+10) range
+//     with the fork specific extra-data set.
+//   - if the node is pro-fork, require blocks in the specific range to have the
+//     unique extra-data set.
+func VerifyEticav6HeaderExtraData(config ctypes.ChainConfigurator, header *types.Header) error {
+	// If the config wants the Eticav6 fork, it should validate the extra data.
+	Eticav6ForkBlock := config.GetEticaSmartContractv6Transition()
+	if Eticav6ForkBlock == nil {
+		return nil
+	}
+	Eticav6ForkBlockB := new(big.Int).SetUint64(*Eticav6ForkBlock)
+	// Make sure the block is within the fork's modified extra-data range
+	limit := new(big.Int).Add(Eticav6ForkBlockB, vars.Eticav6ForkExtraRange)
+	if header.Number.Cmp(Eticav6ForkBlockB) < 0 || header.Number.Cmp(limit) >= 0 {
+		return nil
+	}
+	if !bytes.Equal(header.Extra, vars.Eticav6ForkBlockExtra) {
+		return ErrBadProEticav6Extra
+	}
+	return nil
+}
+
+// (Themis Etica Hardfork). Update Etica Smart Contract bytecode to v6
+func ApplyEticav6(statedb *state.StateDB) {
+	// Apply Etica Smart Contract v6
+	eticav6code := statedb.GetCode(vars.EticaSmartContractAddressv6)
+	statedb.SetCode(vars.EticaSmartContractAddress, eticav6code)
+	statedb.SetNonce(vars.EticaSmartContractAddress, statedb.GetNonce(vars.EticaSmartContractAddress)+1)
+}
+
+// (Themis Etica Hardfork). Update Etica Smart Contract bytecode to v6
+func ApplyCruciblev6(statedb *state.StateDB) {
+	// Apply Etica Smart Contract v6
+	fmt.Printf("*-*-*-*-**-*-*-*-*-*- ApplyCruciblev6 *-*-*-*-*-**-*-*-*-*-*-*-*-*-")
+	cruciblev6code := statedb.GetCode(vars.CrucibleSmartContractAddressv6)
+	statedb.SetCode(vars.CrucibleSmartContractAddress, cruciblev6code)
 	statedb.SetNonce(vars.CrucibleSmartContractAddress, statedb.GetNonce(vars.CrucibleSmartContractAddress)+1)
 }

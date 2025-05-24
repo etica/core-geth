@@ -292,6 +292,8 @@ type CoreGethChainConfig struct {
 	EticaSubset1 *big.Int `json:"EticaSubset1,omitempty"`
 
 	EticaSmartContractv5 *big.Int `json:"EticaSmartContractv5,omitempty"`
+
+	EticaSmartContractv6 *big.Int `json:"EticaSmartContractv6,omitempty"`
 }
 
 // String implements the fmt.Stringer interface.

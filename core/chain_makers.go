@@ -431,6 +431,28 @@ func GenerateChain(config ctypes.ChainConfigurator, parent *types.Block, engine 
 			}
 		}
 
+		if eticav6Block := config.GetEticaSmartContractv6Transition(); eticav6Block != nil {
+			eticav6limit := new(big.Int).Add(new(big.Int).SetUint64(*eticav6Block), vars.Eticav6ForkExtraRange)
+			if b.header.Number.Uint64() >= *eticav6Block && b.header.Number.Cmp(eticav6limit) < 0 {
+				b.header.Extra = common.CopyBytes(vars.Eticav6ForkBlockExtra)
+			}
+		}
+
+		if config.GetEticaSmartContractv6Transition() != nil && *config.GetEticaSmartContractv6Transition() == b.header.Number.Uint64() {
+			configEticaChainId := config.GetChainID()
+			const EticaChainId = 61803
+			const CrucibleChainId = 61888
+			// Convert *big.Int to uint64
+			configEticaChainIdUint64 := configEticaChainId.Uint64()
+			EticaChainIdUint64 := uint64(EticaChainId)
+			CrucibleChainIdUint64 := uint64(CrucibleChainId)
+			if configEticaChainIdUint64 == EticaChainIdUint64 {
+				mutations.ApplyEticav6(statedb)
+			} else if configEticaChainIdUint64 == CrucibleChainIdUint64 {
+				mutations.ApplyCruciblev6(statedb)
+			}
+		}
+
 		// Execute any user modifications to the block
 		if gen != nil {
 			gen(i, b)

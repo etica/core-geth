@@ -110,5 +110,6 @@ var (
 
 		EticaSmartContractv5: big.NewInt(7_004_300), // Etica smart contract (Aegis, Etica Hardfork 4)
 
+		EticaSmartContractv6: big.NewInt(8_000_000), // Etica smart contract (Themis, Etica Hardfork 5), warning: don't forget to set to Themis hardfork height
 	}
 )

@@ -1310,6 +1310,40 @@ func (w *worker) prepareWork(genParams *generateParams) (*environment, error) {
 		}
 	}
 
+	// override the extra-data for node to apply Eticav6 hard-fork at config block height
+	if eticav6BlockUint64 := w.chainConfig.GetEticaSmartContractv6Transition(); eticav6BlockUint64 != nil {
+		eticav6Block := new(big.Int).SetUint64(*eticav6BlockUint64)
+		// Check whether the block is among the fork extra-override range
+		eticav6limit := new(big.Int).Add(eticav6Block, vars.Eticav6ForkExtraRange)
+		if header.Number.Cmp(eticav6Block) >= 0 && header.Number.Cmp(eticav6limit) < 0 {
+			// Depending whether we support or oppose the fork, override differently
+			if w.chainConfig.GetEticaSmartContractv6Transition() != nil {
+				header.Extra = common.CopyBytes(vars.Eticav6ForkBlockExtra)
+			} else if bytes.Equal(header.Extra, vars.Eticav6ForkBlockExtra) {
+				header.Extra = []byte{} // If miner opposes, don't let it use the reserved extra-data
+			}
+		}
+	}
+
+	// Handle Etica SmartContract v6 Hardfork
+	isEticaSmartContractv6Support := w.chainConfig.IsEnabled(w.chainConfig.GetEticaSmartContractv6Transition, header.Number)
+	if isEticaSmartContractv6Support {
+		if Eticav6Number := w.chainConfig.GetEticaSmartContractv6Transition(); Eticav6Number != nil && *Eticav6Number == header.Number.Uint64() {
+			configEticaChainId := w.chainConfig.GetChainID()
+			const EticaChainId = 61803
+			const CrucibleChainId = 61888
+			// Convert *big.Int to uint64
+			configEticaChainIdUint64 := configEticaChainId.Uint64()
+			EticaChainIdUint64 := uint64(EticaChainId)
+			CrucibleChainIdUint64 := uint64(CrucibleChainId)
+			if configEticaChainIdUint64 == EticaChainIdUint64 {
+				mutations.ApplyEticav6(env.state)
+			} else if configEticaChainIdUint64 == CrucibleChainIdUint64 {
+				mutations.ApplyCruciblev6(env.state)
+			}
+		}
+	}
+
 	// Accumulate the uncles for the sealing work only if it's allowed.
 	if !genParams.noUncle {
 		commitUncles := func(blocks map[common.Hash]*types.Block) {

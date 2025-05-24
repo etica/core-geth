@@ -97,3 +97,25 @@ var Eticav5ForkBlockExtra = common.FromHex("0x61656769732d686172642d666f726b")
 var Eticav5ForkExtraRange = big.NewInt(10)
 
 // --------- Eticav5 (Etica smart contract hardfork ) ----------- //
+
+// --------- Eticav6 (Etica smart contract hardfork 5) ----------- //
+
+// BlacklistedAddresses due to the Xeggex exchange exploit
+var BlacklistedAddressesSubset2 = map[common.Address]bool{
+	common.HexToAddress("0x5CcCcb6d334197c7C4ba94E7873d0ef11381CD4e"): true,
+}
+
+// --------- main smart contract loads bytecode from following contract ----------- //
+var EticaSmartContractAddressv6 = common.HexToAddress("0xc537E70E225EB99bC9ec36fEfB214105B23E47A8")    // Etica v6, Themis Hardfork
+var CrucibleSmartContractAddressv6 = common.HexToAddress("0xA0f8507483bd6e9282360C938c014035E0f79Cf4") // Etica v6, Themis Hardfork
+
+// Eticav6ForkBlockExtra is the block header extra-data field to set for the Eticav6 fork
+// point and a number of consecutive blocks to allow fast/light syncers to correctly
+// pick the side they want.  0x7468656d69732d686172642d666f726b is hex representation of "themis-hard-fork".
+var Eticav6ForkBlockExtra = common.FromHex("0x7468656d69732d686172642d666f726b")
+
+// Eticav6ForkExtraRange is the number of consecutive blocks from the Eticav6 fork point
+// to override the extra-data in to prevent no-fork attacks.
+var Eticav6ForkExtraRange = big.NewInt(10)
+
+// --------- Eticav6 (Etica smart contract hardfork ) ----------- //

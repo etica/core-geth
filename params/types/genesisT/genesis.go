@@ -1205,3 +1205,11 @@ func (g *Genesis) GetEticaSmartContractv5Transition() *uint64 {
 func (g *Genesis) SetEticaSmartContractv5Transition(n *uint64) error {
 	return g.Config.SetEticaSmartContractv5Transition(n)
 }
+
+func (g *Genesis) GetEticaSmartContractv6Transition() *uint64 {
+	return g.Config.GetEticaSmartContractv6Transition()
+}
+
+func (g *Genesis) SetEticaSmartContractv6Transition(n *uint64) error {
+	return g.Config.SetEticaSmartContractv6Transition(n)
+}

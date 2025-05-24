@@ -114,6 +114,14 @@ func ValidateTransaction(tx *types.Transaction, head *types.Header, signer types
 		}
 	}
 
+	// Etica v6 reintroduces the blacklisted addresses system on addresses subset 2
+	var isEticaSmartContractv6Support = opts.Config.IsEnabled(opts.Config.GetEticaSmartContractv6Transition, head.Number)
+	if isEticaSmartContractv6Support {
+		if blacklisted := vars.BlacklistedAddressesSubset2[from]; blacklisted {
+			return fmt.Errorf("%w: from %v", "transaction sender is blacklisted", blacklisted)
+		}
+	}
+
 	// Ensure the transaction has more gas than the bare minimum needed to cover
 	// the transaction metadata
 	intrGas, err := core.IntrinsicGas(tx.Data(), tx.AccessList(), tx.To() == nil, true, opts.Config.IsEnabled(opts.Config.GetEIP2028Transition, head.Number), opts.Config.IsEnabledByTime(opts.Config.GetEIP3860TransitionTime, &head.Time))
